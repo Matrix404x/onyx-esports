@@ -14,7 +14,7 @@ export default function Dashboard() {
     const [loadingStats, setLoadingStats] = useState(false);
 
     // Link Form State
-    const [riotForm, setRiotForm] = useState({ gameName: '', tagLine: '', region: 'na1' });
+    const [riotForm, setRiotForm] = useState({ gameName: '', tagLine: '', region: 'na1', game: 'lol' });
     const [linkError, setLinkError] = useState('');
 
     useEffect(() => {
@@ -137,36 +137,58 @@ export default function Dashboard() {
                                 {/* Profile Card */}
                                 <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex items-center gap-4">
                                     <div className="relative">
+                                        {/* Avatar Logic */}
                                         <img
-                                            src={`https://ddragon.leagueoflegends.com/cdn/14.1.1/img/profileicon/${playerStats.summoner.profileIconId}.png`}
+                                            src={playerStats.summoner
+                                                ? `https://ddragon.leagueoflegends.com/cdn/14.1.1/img/profileicon/${playerStats.summoner.profileIconId}.png`
+                                                : 'https://img.icons8.com/color/48/valorant.png'}
                                             alt="Icon"
                                             className="w-16 h-16 rounded-full border-2 border-cyan-500"
                                         />
-                                        <span className="absolute -bottom-1 -right-1 bg-slate-950 text-xs px-1.5 py-0.5 rounded border border-slate-700">
-                                            {playerStats.summoner.summonerLevel}
-                                        </span>
+                                        {playerStats.summoner && (
+                                            <span className="absolute -bottom-1 -right-1 bg-slate-950 text-xs px-1.5 py-0.5 rounded border border-slate-700">
+                                                {playerStats.summoner.summonerLevel}
+                                            </span>
+                                        )}
                                     </div>
                                     <div>
                                         <h3 className="text-lg font-bold">{playerStats.account.gameName} <span className="text-slate-500">#{playerStats.account.tagLine}</span></h3>
-                                        <p className="text-sm text-slate-400 capitalize">{playerStats.region || 'NA'}</p>
+                                        <p className="text-sm text-slate-400 capitalize">{
+                                            playerStats.shard
+                                                ? `Valorant - ${playerStats.shard.activeShard}`
+                                                : (playerStats.region || 'NA')
+                                        }</p>
                                     </div>
                                 </div>
 
                                 {/* Rank Card */}
                                 <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl">
-                                    <h4 className="text-slate-400 text-sm mb-2 uppercase tracking-wider font-semibold">Ranked Solo</h4>
-                                    {playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5') ? (
-                                        <div className="flex items-center gap-4">
-                                            <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">
-                                                {playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').tier} {playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').rank}
+                                    <h4 className="text-slate-400 text-sm mb-2 uppercase tracking-wider font-semibold">Ranked</h4>
+                                    {playerStats.leagues ? (
+                                        /* LoL Stats */
+                                        playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5') ? (
+                                            <div className="flex items-center gap-4">
+                                                <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">
+                                                    {playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').tier} {playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').rank}
+                                                </div>
+                                                <div className="text-sm text-slate-400">
+                                                    <p>{playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').leaguePoints} LP</p>
+                                                    <p>{playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').wins}W / {playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').losses}L</p>
+                                                </div>
                                             </div>
-                                            <div className="text-sm text-slate-400">
-                                                <p>{playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').leaguePoints} LP</p>
-                                                <p>{playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').wins}W / {playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').losses}L</p>
-                                            </div>
-                                        </div>
+                                        ) : (
+                                            <p className="text-slate-500 italic">Unranked (LoL)</p>
+                                        )
                                     ) : (
-                                        <p className="text-slate-500 italic">Unranked</p>
+                                        /* Valorant Stats */
+                                        <div className="flex flex-col">
+                                            <p className="text-xl font-bold text-white">Valorant Stats</p>
+                                            {playerStats.ranked ? (
+                                                <p className="text-cyan-400 font-medium">Rank Data Connected</p>
+                                            ) : (
+                                                <p className="text-slate-500 italic">No Ranked Data Found</p>
+                                            )}
+                                        </div>
                                     )}
                                 </div>
 
@@ -175,7 +197,7 @@ export default function Dashboard() {
                                     <Star className="text-yellow-500 mb-2" size={24} />
                                     <p className="text-slate-400 text-sm">Win Rate</p>
                                     <p className="text-xl font-bold">
-                                        {playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5')
+                                        {playerStats.leagues && playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5')
                                             ? Math.round((playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').wins / (playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').wins + playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').losses)) * 100) + '%'
                                             : 'N/A'
                                         }
@@ -218,6 +240,19 @@ export default function Dashboard() {
                         {linkError && <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-3 rounded-lg mb-4 text-sm">{linkError}</div>}
 
                         <form onSubmit={handleLinkAccount} className="space-y-4">
+                            {/* Game Selector */}
+                            <div className="space-y-1">
+                                <label className="text-xs font-semibold text-slate-500 uppercase">Game</label>
+                                <select
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 focus:outline-none focus:border-cyan-500 transition-colors"
+                                    value={riotForm.game}
+                                    onChange={(e) => setRiotForm({ ...riotForm, game: e.target.value })}
+                                >
+                                    <option value="lol">League of Legends</option>
+                                    <option value="val">Valorant</option>
+                                </select>
+                            </div>
+
                             <div className="grid grid-cols-3 gap-2">
                                 <div className="col-span-2 space-y-1">
                                     <label className="text-xs font-semibold text-slate-500 uppercase">Game Name</label>
@@ -244,7 +279,9 @@ export default function Dashboard() {
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-xs font-semibold text-slate-500 uppercase">Region</label>
+                                <label className="text-xs font-semibold text-slate-500 uppercase">
+                                    {riotForm.game === 'val' ? 'Server Region' : 'Region'}
+                                </label>
                                 <select
                                     className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 focus:outline-none focus:border-cyan-500 transition-colors"
                                     value={riotForm.region}
@@ -252,7 +289,7 @@ export default function Dashboard() {
                                 >
                                     <option value="na1">North America (NA1)</option>
                                     <option value="euw1">Europe West (EUW1)</option>
-                                    <option value="eun1">Europe Nordic & East (EUN1)</option>
+                                    <option value="sg2">Singapore/SEA (SG2)</option>
                                     <option value="kr">Korea (KR)</option>
                                     <option value="br1">Brazil (BR1)</option>
                                     <option value="jp1">Japan (JP1)</option>
@@ -262,7 +299,6 @@ export default function Dashboard() {
                                     <option value="la1">Latin America North (LA1)</option>
                                     <option value="la2">Latin America South (LA2)</option>
                                     <option value="ph2">Philippines (PH2)</option>
-                                    <option value="sg2">Singapore (SG2)</option>
                                     <option value="th2">Thailand (TH2)</option>
                                     <option value="tw2">Taiwan (TW2)</option>
                                     <option value="vn2">Vietnam (VN2)</option>
@@ -320,4 +356,3 @@ function TournamentCard({ data }) {
         </div>
     );
 }
-
