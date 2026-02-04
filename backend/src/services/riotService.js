@@ -1,118 +1,189 @@
-import axios from 'axios';
-import https from 'https';
+import axios from "axios";
+import https from "https";
 
+/* ===============================
+   Axios instance
+================================ */
 const agent = new https.Agent({
-    rejectUnauthorized: false
+    rejectUnauthorized: false,
 });
 
 const axiosInstance = axios.create({
     httpsAgent: agent,
     headers: {
-        'User-Agent': 'EsportsPlatform/1.0'
-    }
+        "User-Agent": "EsportsPlatform/1.0",
+    },
 });
 
-// Remove top level const to avoid hoisting issues
+/* ===============================
+   API Key Getter
+================================ */
 const getApiKey = () => process.env.RIOT_API_KEY;
 
-// Region mapping for routing values (e.g., americas, europe, asia)
-// For Account-V1, we need "americas", "europe", etc.
-// For League-V4, we need "na1", "euw1", etc.
-
+/* ===============================
+   Platform → Cluster mapping
+   (THIS IS THE IMPORTANT FIX)
+================================ */
 const getClusterRegion = (platformId) => {
-    // Simple mapping, can be expanded
     const map = {
         // Americas
-        'na1': 'americas',
-        'br1': 'americas',
-        'la1': 'americas',
-        'la2': 'americas',
-
-        // Asia
-        'kr': 'asia',
-        'jp1': 'asia',
-        'ph2': 'asia',
-        'sg2': 'asia',
-        'th2': 'asia',
-        'tw2': 'asia',
-        'vn2': 'asia',
-        'oc1': 'americas', // OCE is typically routed to Americas for Account-V1
+        na1: "americas",
+        br1: "americas",
+        la1: "americas",
+        la2: "americas",
+        oc1: "americas",
 
         // Europe
-        'euw1': 'europe',
-        'eun1': 'europe',
-        'tr1': 'europe',
-        'ru': 'europe',
-        'me1': 'europe', // Middle East
+        euw1: "europe",
+        eun1: "europe",
+        tr1: "europe",
+        ru: "europe",
+        me1: "europe",
+
+        // Asia
+        kr: "asia",
+        jp1: "asia",
+        ph2: "asia",
+        sg2: "asia",
+        th2: "asia",
+        tw2: "asia",
+        vn2: "asia",
     };
-    return map[platformId] || 'americas';
+
+    return map[platformId];
 };
 
-// 1. Get PUUID by Riot ID (GameName + TagLine)
-export const getAccountByRiotId = async (gameName, tagLine, region = 'na1') => {
+/* ===============================
+   1️⃣ Get Riot Account (PUUID)
+================================ */
+export const getAccountByRiotId = async (
+    gameName,
+    tagLine,
+    platformId
+) => {
     try {
-        const cluster = getClusterRegion(region);
-        const url = `https://${cluster}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
+        const cluster = getClusterRegion(platformId);
 
-        console.log(`[RiotAPI] Fetching Account: ${url}`);
+        if (!cluster) {
+            throw new Error(`Unsupported platform region: ${platformId}`);
+        }
+
+        const url = `https://${cluster}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(
+            gameName
+        )}/${encodeURIComponent(tagLine)}`;
+
+        console.log("[RiotAPI] Account-V1:", url);
+
         const response = await axiosInstance.get(url, {
             headers: {
-                "X-Riot-Token": getApiKey()
-            }
+                "X-Riot-Token": getApiKey(),
+            },
         });
+
         return response.data; // { puuid, gameName, tagLine }
     } catch (error) {
-        console.error("Riot API Error (getAccountByRiotId):", error.response?.data || error.message);
+        console.error(
+            "Riot API Error (Account-V1):",
+            error.response?.data || error.message
+        );
         throw error;
     }
 };
 
-// 2. Get Summoner by PUUID (needed for summonerId)
-export const getSummonerByPuuid = async (puuid, region = 'na1') => {
+/* ===============================
+   2️⃣ Get Summoner by PUUID
+================================ */
+export const getSummonerByPuuid = async (puuid, platformId) => {
     try {
-        const url = `https://${region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${encodeURIComponent(puuid)}`;
+        const url = `https://${platformId}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${encodeURIComponent(
+            puuid
+        )}`;
+
+        console.log("[RiotAPI] Summoner-V4:", url);
+
         const response = await axiosInstance.get(url, {
-            headers: { "X-Riot-Token": getApiKey() }
+            headers: {
+                "X-Riot-Token": getApiKey(),
+            },
         });
-        return response.data; // { id, accountId, puuid, name, profileIconId, revisionDate, summonerLevel }
+
+        return response.data;
     } catch (error) {
-        console.error("Riot API Error (getSummonerByPuuid):", error.response?.data || error.message);
+        console.error(
+            "Riot API Error (Summoner-V4):",
+            error.response?.data || error.message
+        );
         throw error;
     }
 };
 
-// 3. Get Rank/League Entries by Summoner ID
-export const getLeagueEntries = async (summonerId, region = 'na1') => {
+/* ===============================
+   3️⃣ Get Rank / League Entries
+================================ */
+export const getLeagueEntries = async (summonerId, platformId) => {
     try {
-        const url = `https://${region}.api.riotgames.com/lol/league/v4/entries/by-summoner/${encodeURIComponent(summonerId)}`;
+        const url = `https://${platformId}.api.riotgames.com/lol/league/v4/entries/by-summoner/${encodeURIComponent(
+            summonerId
+        )}`;
+
+        console.log("[RiotAPI] League-V4:", url);
+
         const response = await axiosInstance.get(url, {
-            headers: { "X-Riot-Token": getApiKey() }
+            headers: {
+                "X-Riot-Token": getApiKey(),
+            },
         });
-        return response.data; // Array of league entries (Solo/Duo, Flex)
+
+        return response.data;
     } catch (error) {
-        console.error("Riot API Error (getLeagueEntries):", error.response?.data || error.message);
+        console.error(
+            "Riot API Error (League-V4):",
+            error.response?.data || error.message
+        );
         throw error;
     }
 };
 
-// Orchestrator: Get Full Player Stats
-export const getPlayerStats = async (gameName, tagLine, region = 'na1') => {
+/* ===============================
+   4️⃣ Orchestrator (FULL PLAYER DATA)
+================================ */
+export const getPlayerStats = async (
+    gameName,
+    tagLine,
+    platformId
+) => {
+    if (!gameName || !tagLine || !platformId) {
+        throw new Error(
+            "gameName, tagLine, and platformId are required"
+        );
+    }
+
     try {
-        // Step 1: Get Account (PUUID)
-        const account = await getAccountByRiotId(gameName, tagLine, region);
+        // Step 1: Riot Account
+        const account = await getAccountByRiotId(
+            gameName,
+            tagLine,
+            platformId
+        );
 
-        // Step 2: Get Summoner (ID)
-        const summoner = await getSummonerByPuuid(account.puuid, region);
+        // Step 2: Summoner
+        const summoner = await getSummonerByPuuid(
+            account.puuid,
+            platformId
+        );
 
-        // Step 3: Get League Entries (Rank)
-        const leagues = await getLeagueEntries(summoner.id, region);
+        // Step 3: Ranked Data
+        const leagues = await getLeagueEntries(
+            summoner.id,
+            platformId
+        );
 
         return {
             account,
             summoner,
-            leagues
+            leagues,
         };
     } catch (error) {
-        throw error; // Let controller handle status codes
+        throw error;
     }
 };
