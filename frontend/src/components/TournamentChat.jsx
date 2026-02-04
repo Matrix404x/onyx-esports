@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
-import { Send, MessageSquare, User, MoreVertical } from 'lucide-react';
+import { Send, MessageSquare, User, MoreVertical, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { API_URL } from '../config';
 
@@ -100,10 +100,18 @@ export default function TournamentChat({ tournamentId }) {
         }
     };
 
+    const [isCollapsed, setIsCollapsed] = useState(false); // Default expanded
+
+    // ... (keep existing useEffects)
+
+    const toggleCollapse = () => {
+        setIsCollapsed(!isCollapsed);
+    };
+
     return (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl flex flex-col h-[600px] shadow-2xl overflow-hidden relative group">
+        <div className={`bg-slate-900 border border-slate-800 rounded-2xl flex flex-col shadow-2xl overflow-hidden relative group transition-all duration-300 ${isCollapsed ? 'h-16' : 'h-[600px]'}`}>
             {/* Header */}
-            <div className="p-4 border-b border-slate-800 bg-slate-950/50 backdrop-blur-sm flex justify-between items-center sticky top-0 z-10">
+            <div className="p-4 border-b border-slate-800 bg-slate-950/50 backdrop-blur-sm flex justify-between items-center sticky top-0 z-10 cursor-pointer" onClick={toggleCollapse}>
                 <h3 className="font-bold flex items-center gap-2 text-white">
                     <MessageSquare size={18} className="text-cyan-400" />
                     Live Chat
@@ -112,9 +120,17 @@ export default function TournamentChat({ tournamentId }) {
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
                     </span>
                 </h3>
-                <button className="text-slate-500 hover:text-white transition-colors">
-                    <MoreVertical size={16} />
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={(e) => { e.stopPropagation(); toggleCollapse(); }}
+                        className="text-slate-500 hover:text-white transition-colors p-1 rounded-full hover:bg-slate-800"
+                    >
+                        {isCollapsed ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                    </button>
+                    <button className="text-slate-500 hover:text-white transition-colors hidden md:block">
+                        <MoreVertical size={16} />
+                    </button>
+                </div>
             </div>
 
             {/* Messages Area */}
