@@ -65,9 +65,19 @@ export default function LiveStream({ tournamentId, isOrganizer }) {
                             <button
                                 onClick={toggleVideo}
                                 className={`p-2 rounded-lg transition-colors ${!isVideoEnabled ? 'bg-red-500/20 text-red-500' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
-                                title={isVideoEnabled ? "Pause Video" : "Resume Video"}
+                                title={isVideoEnabled ? "Disable Video" : "Enable Video"}
                             >
                                 {isVideoEnabled ? <Video size={20} /> : <VideoOff size={20} />}
+                            </button>
+
+                            <div className="w-[1px] h-6 bg-slate-700 mx-1" />
+
+                            <button
+                                onClick={toggleStreamPause}
+                                className={`p-2 rounded-lg transition-colors ${isStreamPaused ? 'bg-yellow-500/20 text-yellow-500' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
+                                title={isStreamPaused ? "Resume Stream" : "Pause Stream"}
+                            >
+                                {isStreamPaused ? <Play size={20} /> : <Pause size={20} />}
                             </button>
 
                             <div className="w-[1px] h-6 bg-slate-700 mx-1" />
