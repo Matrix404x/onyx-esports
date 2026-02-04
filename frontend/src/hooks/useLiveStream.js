@@ -106,13 +106,19 @@ export default function useLiveStream(tournamentId, isHost, user) {
             // Add Screen Audio to Mix
             if (screenStream.getAudioTracks().length > 0) {
                 const screenSource = ac.createMediaStreamSource(screenStream);
-                screenSource.connect(dest);
+                const screenGain = ac.createGain();
+                screenGain.gain.value = 1; // Default Unmuted
+                screenSource.connect(screenGain).connect(dest);
+                screenGainNodeRef.current = screenGain;
             }
 
             // Add Mic Audio to Mix
             if (micStream && micStream.getAudioTracks().length > 0) {
                 const micSource = ac.createMediaStreamSource(micStream);
-                micSource.connect(dest);
+                const micGain = ac.createGain();
+                micGain.gain.value = 1; // Default Unmuted
+                micSource.connect(micGain).connect(dest);
+                micGainNodeRef.current = micGain;
             }
 
             // 4. Create Final Mixed Stream
@@ -269,6 +275,10 @@ export default function useLiveStream(tournamentId, isHost, user) {
     const micStreamRef = useRef(null);
     const screenStreamRef = useRef(null);
 
+    // Gain Nodes for mixing control
+    const micGainNodeRef = useRef(null);
+    const screenGainNodeRef = useRef(null);
+
     const toggleVideo = () => {
         if (localStreamRef.current) {
             const videoTracks = localStreamRef.current.getVideoTracks();
@@ -280,23 +290,29 @@ export default function useLiveStream(tournamentId, isHost, user) {
     };
 
     const toggleMic = () => {
-        if (micStreamRef.current) {
-            const audioTracks = micStreamRef.current.getAudioTracks();
-            audioTracks.forEach(track => {
-                track.enabled = !isMicEnabled;
-            });
-            setIsMicEnabled(!isMicEnabled);
+        const newEnabled = !isMicEnabled;
+        // 1. Toggle via GainNode (Mixing)
+        if (micGainNodeRef.current) {
+            micGainNodeRef.current.gain.value = newEnabled ? 1 : 0;
         }
+        // 2. Toggle via Track (Fallback/Indicator)
+        if (micStreamRef.current) {
+            micStreamRef.current.getAudioTracks().forEach(t => t.enabled = newEnabled);
+        }
+        setIsMicEnabled(newEnabled);
     };
 
     const toggleSystemAudio = () => {
-        if (screenStreamRef.current) {
-            const audioTracks = screenStreamRef.current.getAudioTracks();
-            audioTracks.forEach(track => {
-                track.enabled = !isSystemAudioEnabled;
-            });
-            setIsSystemAudioEnabled(!isSystemAudioEnabled);
+        const newEnabled = !isSystemAudioEnabled;
+        // 1. Toggle via GainNode (Mixing)
+        if (screenGainNodeRef.current) {
+            screenGainNodeRef.current.gain.value = newEnabled ? 1 : 0;
         }
+        // 2. Toggle via Track (Fallback/Indicator)
+        if (screenStreamRef.current) {
+            screenStreamRef.current.getAudioTracks().forEach(t => t.enabled = newEnabled);
+        }
+        setIsSystemAudioEnabled(newEnabled);
     };
 
     return {
