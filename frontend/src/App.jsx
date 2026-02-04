@@ -11,6 +11,10 @@ import Tournaments from './pages/Tournaments';
 import Teams from './pages/Teams';
 
 import Landing from './pages/Landing';
+import AdminLayout from './components/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminTournaments from './pages/admin/AdminTournaments';
 
 function App() {
   return (
@@ -27,6 +31,12 @@ function App() {
         <Route path="/voice" element={<Voice />} />
         <Route path="/create-tournament" element={<CreateTournament />} />
         <Route path="/profile" element={<Profile />} />
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="tournaments" element={<AdminTournaments />} />
+        </Route>
       </Routes>
     </div>
   );

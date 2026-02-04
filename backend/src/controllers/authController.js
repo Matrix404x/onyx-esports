@@ -29,7 +29,8 @@ export const register = async (req, res) => {
         const payload = {
             user: {
                 id: user.id,
-                username: user.username
+                username: user.username,
+                role: user.role
             }
         };
 
@@ -38,7 +39,7 @@ export const register = async (req, res) => {
 
         jwt.sign(payload, jwtSecret, { expiresIn: '5d' }, (err, token) => {
             if (err) throw err;
-            res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
+            res.json({ token, user: { id: user.id, username: user.username, email: user.email, role: user.role } });
         });
 
     } catch (err) {
@@ -67,7 +68,8 @@ export const login = async (req, res) => {
         const payload = {
             user: {
                 id: user.id,
-                username: user.username
+                username: user.username,
+                role: user.role
             }
         };
 
@@ -75,7 +77,7 @@ export const login = async (req, res) => {
 
         jwt.sign(payload, jwtSecret, { expiresIn: '5d' }, (err, token) => {
             if (err) throw err;
-            res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
+            res.json({ token, user: { id: user.id, username: user.username, email: user.email, role: user.role } });
         });
 
     } catch (err) {

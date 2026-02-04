@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, Trophy, Users, MessageSquare, Mic, LogOut, Menu, X, Link as LinkIcon, Activity, Star } from 'lucide-react';
+import { LayoutDashboard, Trophy, Users, MessageSquare, Mic, LogOut, Menu, X, Link as LinkIcon, Activity, Star, Shield } from 'lucide-react';
+
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -83,6 +84,9 @@ export default function Dashboard() {
                     <NavItem icon={<Users />} label="Teams" onClick={() => navigate('/teams')} active={window.location.pathname === '/teams'} />
                     <NavItem icon={<MessageSquare />} label="Chat" onClick={() => navigate('/chat')} active={window.location.pathname === '/chat'} />
                     <NavItem icon={<Mic />} label="Voice Channels" onClick={() => navigate('/voice')} active={window.location.pathname === '/voice'} />
+                    {user?.role === 'admin' && (
+                        <NavItem icon={<Shield />} label="Admin Panel" onClick={() => navigate('/admin')} active={window.location.pathname.startsWith('/admin')} />
+                    )}
                 </nav>
 
                 <div className="absolute bottom-0 w-full p-4 border-t border-slate-800">
