@@ -105,6 +105,10 @@ function Peer({ peer }) {
     useEffect(() => {
         if (audioRef.current && peer.stream) {
             audioRef.current.srcObject = peer.stream;
+            // Explicitly play audio to bypass potential autoplay blocks
+            audioRef.current.play().catch(err => {
+                console.error("Failed to play audio:", err);
+            });
         }
     }, [peer.stream]);
 
@@ -114,7 +118,7 @@ function Peer({ peer }) {
                 ?
             </div>
             {/* Audio Element Hidden */}
-            <audio ref={audioRef} autoPlay playsInline className="hidden" />
+            <audio ref={audioRef} autoPlay playsInline controls={false} className="hidden" />
         </div>
     )
 }
