@@ -1,14 +1,19 @@
 import User from '../models/User.js';
-import { getPlayerStats } from '../services/riotService.js';
+import { getPlayerStats, getValorantStats } from '../services/riotService.js';
 
 // Link Riot Account
 export const linkRiotAccount = async (req, res) => {
     try {
-        const { gameName, tagLine, region } = req.body;
+        const { gameName, tagLine, region, game = 'lol' } = req.body; // Added game param
         const userId = req.user.id;
 
-        // Verify with Riot
-        const stats = await getPlayerStats(gameName, tagLine, region);
+        // Verify with Riot based on Game Type
+        let stats;
+        if (game === 'val') {
+            stats = await getValorantStats(gameName, tagLine, region);
+        } else {
+            stats = await getPlayerStats(gameName, tagLine, region); // Default to LoL
+        }
 
         // Update User
         const user = await User.findById(userId);
@@ -19,6 +24,15 @@ export const linkRiotAccount = async (req, res) => {
         user.riotPuuid = stats.account.puuid;
         user.region = region;
 
+        // Optionally store the game type properly if Schema allows, 
+        // for now we trust the stored PUUID is enough for identity.
+        // We might need to store 'gamePreference' or similar later.
+        if (game === 'val') {
+            user.game = 'val'; // Ensure Schema has this or use flexible schema
+        } else {
+            user.game = 'lol';
+        }
+
         await user.save();
 
         res.json({ message: "Riot Account Linked", user, stats });
@@ -28,9 +42,8 @@ export const linkRiotAccount = async (req, res) => {
         if (err.response) {
             console.error("Riot Response:", err.response.status, err.response.data);
             if (err.response.status === 404) {
-                return res.status(404).json({ message: "Riot account not found" });
+                return res.status(404).json({ message: "Riot account/player not found" });
             }
-            // Pass through the specific error from Riot
             return res.status(err.response.status).json({
                 message: err.response.data?.status?.message || "Riot API Error",
                 details: err.response.data
@@ -51,7 +64,12 @@ export const getMyStats = async (req, res) => {
         }
 
         // Fetch fresh stats from Riot
-        const stats = await getPlayerStats(user.summonerName, user.tagLine, user.region);
+        let stats;
+        if (user.game === 'val') {
+            stats = await getValorantStats(user.summonerName, user.tagLine, user.region);
+        } else {
+            stats = await getPlayerStats(user.summonerName, user.tagLine, user.region);
+        }
 
         res.json(stats);
 

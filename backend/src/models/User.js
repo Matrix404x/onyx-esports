@@ -40,6 +40,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: 'na1' // Default region, can be changed
     },
+    game: {
+        type: String,
+        default: 'lol' // 'lol' or 'val'
+    },
     createdAt: {
         type: Date,
         default: Date.now

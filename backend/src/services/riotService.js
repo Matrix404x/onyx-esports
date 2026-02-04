@@ -18,7 +18,11 @@ const axiosInstance = axios.create({
 /* ===============================
    API Key Getter
 ================================ */
-const getApiKey = () => process.env.RIOT_API_KEY;
+const getApiKey = () => {
+    const key = process.env.RIOT_API_KEY;
+    if (!key) console.error("CRITICAL: RIOT_API_KEY is missing via process.env!");
+    return key;
+};
 
 /* ===============================
    Platform → Cluster mapping
@@ -182,6 +186,85 @@ export const getPlayerStats = async (
             account,
             summoner,
             leagues,
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
+/* ===============================
+   5️⃣ Valorant Specifics
+================================ */
+
+// Get Active Shard (Val requires this to know which server to query)
+// https://{cluster}.api.riotgames.com/riot/account/v1/active-shards/by-game/val/by-puuid/{puuid}
+export const getActiveShard = async (puuid, cluster = 'americas') => {
+    try {
+        const url = `https://${cluster}.api.riotgames.com/riot/account/v1/active-shards/by-game/val/by-puuid/${encodeURIComponent(puuid)}`;
+        console.log("[RiotAPI] ActiveShard-V1:", url);
+
+        const response = await axiosInstance.get(url, {
+            headers: { "X-Riot-Token": getApiKey() }
+        });
+        return response.data; // { activeShard: "na", game: "val", ... }
+    } catch (error) {
+        console.error("Riot API Error (ActiveShard):", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+// Get Valorant Ranked Stats (Competitive Updates / Match History / MMR)
+// NOTE: "Ranked" endpoint by PUUID is unofficial/hidden in some docs or standard Match-V1. 
+// Official documented approach for rank is: /val/ranked/v1/leaderboards/by-act/{actId}?size=200&startIndex=0
+// However, finding a specific player in leaderboard is hard.
+// Instead, most apps use: /val/match/v1/matches/by-puuid/{puuid}/recent (for history)
+// OR /val/ranked/v1/by-puuid/{puuid} (if available/documented)
+// Let's try the common endpoint for stats: /val/ranked/v1/by-puuid/{puuid} (often used, though sometimes restricted)
+// If unrestricted access is needed, we check match history. Let's try standard ranked endpoint first.
+export const getValorantRankedStats = async (puuid, shard) => {
+    try {
+        const url = `https://${shard}.api.riotgames.com/val/ranked/v1/by-puuid/${encodeURIComponent(puuid)}`;
+        console.log("[RiotAPI] ValRanked-V1:", url);
+
+        const response = await axiosInstance.get(url, {
+            headers: { "X-Riot-Token": getApiKey() }
+        });
+        return response.data;
+    } catch (error) {
+        // 404 means no ranked data or wrong shard
+        console.error("Riot API Error (ValRanked):", error.response?.data || error.message);
+        // Return null instead of throwing, so we don't break the whole flow if unranked
+        return null;
+    }
+};
+
+
+/* ===============================
+   6️⃣ Orchestrator (Valorant)
+================================ */
+export const getValorantStats = async (gameName, tagLine, platformId) => {
+    try {
+        // Step 1: Account (PUUID)
+        // We still need a cluster region for Account-V1. 
+        // We can reuse getClusterRegion(platformId) if platformId is passed (e.g. 'na1'), 
+        // or just default to 'americas' if unknown, but better to ask user for close region.
+        // Assuming platformId for Val is passed as 'na1', 'ap', 'eu', etc.
+
+        // Improve cluster mapping for Val if needed, but existing ONE works for Account lookup.
+        const account = await getAccountByRiotId(gameName, tagLine, platformId);
+
+        // Step 2: Get Active Shard
+        // We MUST know the cluster to ask for shard. 
+        const cluster = getClusterRegion(platformId);
+        const shardData = await getActiveShard(account.puuid, cluster);
+
+        // Step 3: Get Ranked Stats
+        const ranked = await getValorantRankedStats(account.puuid, shardData.activeShard);
+
+        return {
+            account,
+            shard: shardData,
+            ranked
         };
     } catch (error) {
         throw error;
