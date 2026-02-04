@@ -78,10 +78,51 @@ export default function TournamentDetails() {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent z-10" />
                 <img src={tournament.image || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2670&auto=format&fit=crop'} alt={tournament.title} className="w-full h-full object-cover opacity-60" />
 
-                <div className="absolute top-6 left-6 z-20">
-                    <button onClick={() => navigate(-1)} className="p-2 bg-slate-900/80 rounded-full hover:bg-cyan-500/20 text-white transition">
+                <div className="absolute top-6 left-6 z-20 flex items-center gap-4">
+                    <button
+                        onClick={() => {
+                            if (window.history.length > 2) {
+                                navigate(-1);
+                            } else {
+                                navigate(user ? '/dashboard' : '/');
+                            }
+                        }}
+                        className="p-2 bg-slate-900/80 rounded-full hover:bg-cyan-500/20 text-white transition"
+                    >
                         <ArrowLeft />
                     </button>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="px-4 py-2 bg-slate-900/80 rounded-full hover:bg-cyan-500/20 text-white transition text-sm font-bold backdrop-blur-sm"
+                    >
+                        Home
+                    </button>
+                </div>
+
+                <div className="absolute top-6 right-6 z-20">
+                    {user ? (
+                        <button
+                            onClick={() => navigate('/dashboard')}
+                            className="px-6 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-full font-bold shadow-lg shadow-cyan-500/20 transition-all backdrop-blur-sm"
+                        >
+                            Dashboard
+                        </button>
+                    ) : (
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => navigate('/login')}
+                                className="px-6 py-2 bg-slate-900/80 hover:bg-slate-800 text-white rounded-full font-bold transition-all backdrop-blur-sm"
+                            >
+                                Login
+                            </button>
+                            <button
+                                onClick={() => navigate('/register')}
+                                className="px-6 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-full font-bold shadow-lg shadow-cyan-500/20 transition-all backdrop-blur-sm"
+                            >
+                                Register
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 <div className="absolute bottom-0 left-0 w-full p-8 z-20">
