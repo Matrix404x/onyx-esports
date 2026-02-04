@@ -63,13 +63,14 @@ export default function useLiveStream(tournamentId, isHost, user) {
             const screenStream = await navigator.mediaDevices.getDisplayMedia({
                 video: {
                     cursor: "always",
-                    frameRate: { max: 30 },
-                    width: { max: 1280 },
-                    height: { max: 720 }
+                    frameRate: { max: 24, ideal: 24 }, // Lower FPS to 24 (cinematic) to save CPU
+                    width: { max: 854, ideal: 854 },   // Lower to 480p
+                    height: { max: 480, ideal: 480 }
                 },
                 audio: {
-                    echoCancellation: true,
-                    noiseSuppression: true,
+                    echoCancellation: false, // Disable EC on system audio to prevent quality loss
+                    autoGainControl: false,
+                    noiseSuppression: false,
                     sampleRate: 44100
                 }
             });
@@ -77,7 +78,13 @@ export default function useLiveStream(tournamentId, isHost, user) {
             // 2. Get Microphone (User Voice)
             let micStream;
             try {
-                micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                micStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
+                });
             } catch (micErr) {
                 console.warn("Microphone access denied or not available", micErr);
             }
@@ -85,6 +92,9 @@ export default function useLiveStream(tournamentId, isHost, user) {
             // 3. Mix Audio Sources
             const ac = new (window.AudioContext || window.webkitAudioContext)();
             audioContextRef.current = ac;
+            if (ac.state === 'suspended') {
+                await ac.resume();
+            }
             const dest = ac.createMediaStreamDestination();
             audioDestinationRef.current = dest;
 
