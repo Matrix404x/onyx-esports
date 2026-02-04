@@ -19,9 +19,15 @@ const axiosInstance = axios.create({
    API Key Getter
 ================================ */
 const getApiKey = () => {
-    const key = process.env.RIOT_API_KEY;
-    if (!key) console.error("CRITICAL: RIOT_API_KEY is missing via process.env!");
-    return key;
+    let key = process.env.RIOT_API_KEY;
+    // Fallback if env is missing or clearly the old one (simple check)
+    if (!key || key.startsWith("RGAPI-95564")) {
+        console.warn("WARNING: RIOT_API_KEY missing or old in process.env. Using hardcoded fallback.");
+        key = "RGAPI-90019993-0068-4387-887d-b8498240d6df";
+    }
+    const finalKey = key.trim();
+    console.log(`[RiotAPI] Using Key: ${finalKey.substring(0, 10)}...`);
+    return finalKey;
 };
 
 /* ===============================
