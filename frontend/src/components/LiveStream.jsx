@@ -5,7 +5,11 @@ import { useAuth } from '../context/AuthContext';
 
 export default function LiveStream({ tournamentId, isOrganizer }) {
     const { user } = useAuth();
-    const { stream, status, startStream, stopStream, toggleVideo, toggleMic, toggleSystemAudio, isVideoEnabled, isMicEnabled, isSystemAudioEnabled } = useLiveStream(tournamentId, isOrganizer, user);
+    const {
+        stream, status, startStream, stopStream,
+        toggleVideo, toggleMic, toggleSystemAudio, toggleStreamPause,
+        isVideoEnabled, isMicEnabled, isSystemAudioEnabled, isStreamPaused
+    } = useLiveStream(tournamentId, isOrganizer, user);
     const videoRef = useRef(null);
 
     useEffect(() => {
@@ -37,6 +41,7 @@ export default function LiveStream({ tournamentId, isOrganizer }) {
                 <h3 className="text-xl font-bold flex items-center gap-2">
                     <Radio className={status === 'live' || status === 'watching' ? "text-red-500 animate-pulse" : "text-slate-500"} />
                     {status === 'live' ? 'You are Live' : (status === 'watching' ? 'Live Stream' : 'Live Stream')}
+                    {isStreamPaused && <span className="text-yellow-500 text-sm font-normal uppercase border border-yellow-500 px-2 py-0.5 rounded ml-2">Paused</span>}
                 </h3>
 
                 {isOrganizer && (
