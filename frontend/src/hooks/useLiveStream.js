@@ -260,10 +260,39 @@ export default function useLiveStream(tournamentId, isHost, user) {
         }
     };
 
+    // --- Stream Controls ---
+    const [isVideoEnabled, setIsVideoEnabled] = useState(true);
+    const [isAudioEnabled, setIsAudioEnabled] = useState(true);
+
+    const toggleVideo = () => {
+        if (localStreamRef.current) {
+            const videoTracks = localStreamRef.current.getVideoTracks();
+            videoTracks.forEach(track => {
+                track.enabled = !isVideoEnabled;
+            });
+            setIsVideoEnabled(!isVideoEnabled);
+        }
+    };
+
+    const toggleAudio = () => {
+        if (localStreamRef.current) {
+            const audioTracks = localStreamRef.current.getAudioTracks();
+            audioTracks.forEach(track => {
+                track.enabled = !isAudioEnabled;
+            });
+            setIsAudioEnabled(!isAudioEnabled);
+        }
+        // Also toggle mic stream if it exists separately (though it should be in mixed stream)
+    };
+
     return {
         stream,
         status,
         startStream,
-        stopStream
+        stopStream,
+        toggleVideo,
+        toggleAudio,
+        isVideoEnabled,
+        isAudioEnabled
     };
 }

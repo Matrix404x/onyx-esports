@@ -1,11 +1,11 @@
 import { useRef, useEffect } from 'react';
-import { Tv, StopCircle, PlayCircle, Radio } from 'lucide-react';
+import { Tv, StopCircle, PlayCircle, Radio, Mic, MicOff, Video, VideoOff } from 'lucide-react';
 import useLiveStream from '../hooks/useLiveStream';
 import { useAuth } from '../context/AuthContext';
 
 export default function LiveStream({ tournamentId, isOrganizer }) {
     const { user } = useAuth();
-    const { stream, status, startStream, stopStream } = useLiveStream(tournamentId, isOrganizer, user);
+    const { stream, status, startStream, stopStream, toggleVideo, toggleAudio, isVideoEnabled, isAudioEnabled } = useLiveStream(tournamentId, isOrganizer, user);
     const videoRef = useRef(null);
 
     useEffect(() => {
@@ -41,12 +41,32 @@ export default function LiveStream({ tournamentId, isOrganizer }) {
 
                 {isOrganizer && (
                     status === 'live' ? (
-                        <button
-                            onClick={stopStream}
-                            className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-bold"
-                        >
-                            <StopCircle size={18} /> End Stream
-                        </button>
+                        <div className="flex items-center gap-2">
+                            {/* Stream Controls */}
+                            <button
+                                onClick={toggleAudio}
+                                className={`p-2 rounded-lg transition-colors ${!isAudioEnabled ? 'bg-red-500/20 text-red-500' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
+                                title={isAudioEnabled ? "Mute Stream" : "Unmute Stream"}
+                            >
+                                {isAudioEnabled ? <Mic size={20} /> : <MicOff size={20} />}
+                            </button>
+                            <button
+                                onClick={toggleVideo}
+                                className={`p-2 rounded-lg transition-colors ${!isVideoEnabled ? 'bg-red-500/20 text-red-500' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
+                                title={isVideoEnabled ? "Pause Video" : "Resume Video"}
+                            >
+                                {isVideoEnabled ? <Video size={20} /> : <VideoOff size={20} />}
+                            </button>
+
+                            <div className="w-[1px] h-6 bg-slate-700 mx-1" />
+
+                            <button
+                                onClick={stopStream}
+                                className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-bold"
+                            >
+                                <StopCircle size={18} /> End Stream
+                            </button>
+                        </div>
                     ) : (
                         <button
                             onClick={startStream}
