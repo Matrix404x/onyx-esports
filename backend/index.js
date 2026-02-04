@@ -25,6 +25,10 @@ const connectDB = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI);
         console.log('MongoDB Connected');
+
+        // Seed Admin
+        await seedAdmin();
+
     } catch (err) {
         console.error('MongoDB Connection Error:', err.message);
         // process.exit(1); // Keep running even if DB fails for now
@@ -33,6 +37,7 @@ const connectDB = async () => {
 connectDB();
 
 import authRoutes from './src/routes/authRoutes.js';
+import seedAdmin from './src/seeders/adminSeeder.js';
 
 // ...
 
