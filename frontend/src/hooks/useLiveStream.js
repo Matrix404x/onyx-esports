@@ -75,6 +75,11 @@ export default function useLiveStream(tournamentId, isHost, user) {
                 }
             });
 
+            // CHECK: Did we actually get an audio track?
+            if (screenStream.getAudioTracks().length === 0) {
+                alert("WARNING: No System Audio detected!\n\n1. Make sure you checked the 'Share system audio' box.\n2. For best results, share a Chrome TAB (like YouTube), not a Window.");
+            }
+
             // 2. Get Microphone (User Voice)
             let micStream;
             try {
