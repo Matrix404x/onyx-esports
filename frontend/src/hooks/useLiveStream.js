@@ -54,13 +54,17 @@ export default function useLiveStream(tournamentId, isHost, user) {
 
     // --- Host Functions ---
 
+    const audioContextRef = useRef(null);
+    const audioDestinationRef = useRef(null);
+
     const startStream = async () => {
         try {
-            const mediaStream = await navigator.mediaDevices.getDisplayMedia({
+            // 1. Get Screen Share (Video + System Audio)
+            const screenStream = await navigator.mediaDevices.getDisplayMedia({
                 video: {
                     cursor: "always",
-                    frameRate: { max: 30 }, // Limit FPS to reduce lag
-                    width: { max: 1280 },   // Limit resolution to 720p
+                    frameRate: { max: 30 },
+                    width: { max: 1280 },
                     height: { max: 720 }
                 },
                 audio: {
@@ -70,22 +74,60 @@ export default function useLiveStream(tournamentId, isHost, user) {
                 }
             });
 
-            // Add mic audio potentially?
-            // const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            // // Merge tracks if needed. For now simple screen share.
+            // 2. Get Microphone (User Voice)
+            let micStream;
+            try {
+                micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            } catch (micErr) {
+                console.warn("Microphone access denied or not available", micErr);
+            }
 
-            localStreamRef.current = mediaStream;
-            setStream(mediaStream);
+            // 3. Mix Audio Sources
+            const ac = new (window.AudioContext || window.webkitAudioContext)();
+            audioContextRef.current = ac;
+            const dest = ac.createMediaStreamDestination();
+            audioDestinationRef.current = dest;
+
+            // Add Screen Audio to Mix
+            if (screenStream.getAudioTracks().length > 0) {
+                const screenSource = ac.createMediaStreamSource(screenStream);
+                screenSource.connect(dest);
+            }
+
+            // Add Mic Audio to Mix
+            if (micStream && micStream.getAudioTracks().length > 0) {
+                const micSource = ac.createMediaStreamSource(micStream);
+                micSource.connect(dest);
+            }
+
+            // 4. Create Final Mixed Stream
+            const mixedStream = new MediaStream();
+            // Add Video
+            screenStream.getVideoTracks().forEach(track => mixedStream.addTrack(track));
+            // Add Mixed Audio
+            if (dest.stream.getAudioTracks().length > 0) {
+                mixedStream.addTrack(dest.stream.getAudioTracks()[0]);
+            } else if (screenStream.getAudioTracks().length > 0) {
+                // Fallback if mixing failed for some reason
+                mixedStream.addTrack(screenStream.getAudioTracks()[0]);
+            }
+
+            localStreamRef.current = mixedStream;
+            setStream(mixedStream);
             setStatus('live');
 
             socket.emit('start-stream', tournamentId);
 
             // Handle stream stop via browser UI
-            mediaStream.getVideoTracks()[0].onended = stopStream;
+            screenStream.getVideoTracks()[0].onended = () => {
+                stopStream();
+                // Also stop mic tracks
+                if (micStream) micStream.getTracks().forEach(t => t.stop());
+            };
 
         } catch (err) {
             console.error("Error starting stream:", err);
-            alert("Could not start screen share.");
+            alert("Could not start screen share. Please allow permissions.");
         }
     };
 
@@ -94,6 +136,14 @@ export default function useLiveStream(tournamentId, isHost, user) {
             localStreamRef.current.getTracks().forEach(track => track.stop());
             localStreamRef.current = null;
         }
+
+        // Clean up Audio Context
+        if (audioContextRef.current) {
+            audioContextRef.current.close();
+            audioContextRef.current = null;
+        }
+        audioDestinationRef.current = null;
+
         setStream(null);
         setStatus('idle');
 
