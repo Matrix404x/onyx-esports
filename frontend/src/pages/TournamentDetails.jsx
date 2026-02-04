@@ -155,7 +155,17 @@ export default function TournamentDetails() {
                             </button>
                         )}
 
-                        <button className="w-full mt-3 py-3 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-xl border border-slate-700 transition-all flex items-center justify-center gap-2">
+                        <button
+                            onClick={() => {
+                                navigator.clipboard.writeText(window.location.href);
+                                const toast = document.createElement('div');
+                                toast.className = 'fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-full shadow-xl z-50 animate-bounce';
+                                toast.innerText = 'Tournament link copied to clipboard! 🚀';
+                                document.body.appendChild(toast);
+                                setTimeout(() => toast.remove(), 3000);
+                            }}
+                            className="w-full mt-3 py-3 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-xl border border-slate-700 transition-all flex items-center justify-center gap-2"
+                        >
                             <Share2 size={18} /> Share Tournament
                         </button>
                     </div>
