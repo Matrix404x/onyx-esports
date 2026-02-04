@@ -57,8 +57,17 @@ export default function useLiveStream(tournamentId, isHost, user) {
     const startStream = async () => {
         try {
             const mediaStream = await navigator.mediaDevices.getDisplayMedia({
-                video: true,
-                audio: true
+                video: {
+                    cursor: "always",
+                    frameRate: { max: 30 }, // Limit FPS to reduce lag
+                    width: { max: 1280 },   // Limit resolution to 720p
+                    height: { max: 720 }
+                },
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    sampleRate: 44100
+                }
             });
 
             // Add mic audio potentially?

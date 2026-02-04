@@ -11,6 +11,10 @@ export default function LiveStream({ tournamentId, isOrganizer }) {
     useEffect(() => {
         if (videoRef.current && stream) {
             videoRef.current.srcObject = stream;
+            // Force play to handle browser policies
+            videoRef.current.play().catch(err => {
+                console.error("Error playing video stream:", err);
+            });
         }
     }, [stream]);
 
