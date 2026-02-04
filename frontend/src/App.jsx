@@ -10,8 +10,7 @@ import Profile from './pages/Profile';
 import Tournaments from './pages/Tournaments';
 import Teams from './pages/Teams';
 
-// Placeholder (Will implement later)
-const Landing = () => <div className="min-h-screen bg-slate-950 flex items-center justify-center text-3xl font-bold text-white">Landing Page <a href="/login" className="ml-4 text-cyan-400 text-xl">Go to Login</a></div>;
+import Landing from './pages/Landing';
 
 function App() {
   return (
