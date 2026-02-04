@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { Tv, StopCircle, PlayCircle, Radio, Mic, MicOff, Video, VideoOff, Volume2, VolumeX } from 'lucide-react';
+import { Tv, StopCircle, PlayCircle, Radio, Mic, MicOff, Video, VideoOff, Volume2, VolumeX, Pause, Play } from 'lucide-react';
 import useLiveStream from '../hooks/useLiveStream';
 import { useAuth } from '../context/AuthContext';
 
