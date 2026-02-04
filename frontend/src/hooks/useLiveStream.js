@@ -262,7 +262,12 @@ export default function useLiveStream(tournamentId, isHost, user) {
 
     // --- Stream Controls ---
     const [isVideoEnabled, setIsVideoEnabled] = useState(true);
-    const [isAudioEnabled, setIsAudioEnabled] = useState(true);
+    const [isMicEnabled, setIsMicEnabled] = useState(true);
+    const [isSystemAudioEnabled, setIsSystemAudioEnabled] = useState(true);
+
+    // Refs to hold source streams for independent toggling
+    const micStreamRef = useRef(null);
+    const screenStreamRef = useRef(null);
 
     const toggleVideo = () => {
         if (localStreamRef.current) {
@@ -274,15 +279,24 @@ export default function useLiveStream(tournamentId, isHost, user) {
         }
     };
 
-    const toggleAudio = () => {
-        if (localStreamRef.current) {
-            const audioTracks = localStreamRef.current.getAudioTracks();
+    const toggleMic = () => {
+        if (micStreamRef.current) {
+            const audioTracks = micStreamRef.current.getAudioTracks();
             audioTracks.forEach(track => {
-                track.enabled = !isAudioEnabled;
+                track.enabled = !isMicEnabled;
             });
-            setIsAudioEnabled(!isAudioEnabled);
+            setIsMicEnabled(!isMicEnabled);
         }
-        // Also toggle mic stream if it exists separately (though it should be in mixed stream)
+    };
+
+    const toggleSystemAudio = () => {
+        if (screenStreamRef.current) {
+            const audioTracks = screenStreamRef.current.getAudioTracks();
+            audioTracks.forEach(track => {
+                track.enabled = !isSystemAudioEnabled;
+            });
+            setIsSystemAudioEnabled(!isSystemAudioEnabled);
+        }
     };
 
     return {
@@ -291,8 +305,10 @@ export default function useLiveStream(tournamentId, isHost, user) {
         startStream,
         stopStream,
         toggleVideo,
-        toggleAudio,
+        toggleMic,
+        toggleSystemAudio,
         isVideoEnabled,
-        isAudioEnabled
+        isMicEnabled,
+        isSystemAudioEnabled
     };
 }
