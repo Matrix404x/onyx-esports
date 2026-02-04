@@ -185,25 +185,52 @@ export default function Dashboard() {
                                         )
                                     ) : (
                                         /* Valorant Stats */
-                                        <div className="flex flex-col">
-                                            <p className="text-xl font-bold text-white">Valorant Stats</p>
+                                        <div className="flex flex-col gap-2">
                                             {playerStats.ranked ? (
-                                                <p className="text-cyan-400 font-medium">Rank Data Connected</p>
+                                                <div>
+                                                    <p className="text-xl font-bold text-white">Ranked Rating</p>
+                                                    <p className="text-cyan-400 font-medium">Rank Data Connected</p>
+                                                </div>
                                             ) : (
-                                                <p className="text-slate-500 italic">No Ranked Data Found</p>
+                                                <div>
+                                                    <p className="text-xl font-bold text-slate-500">Unranked</p>
+                                                    <p className="text-xs text-slate-400">Play competitive to get a rank</p>
+                                                </div>
+                                            )}
+
+                                            {/* Recent Matches List */}
+                                            {playerStats.recentMatches && playerStats.recentMatches.length > 0 && (
+                                                <div className="mt-2">
+                                                    <p className="text-xs font-semibold text-slate-500 mb-1 uppercase">Recent Matches</p>
+                                                    <div className="flex gap-1">
+                                                        {playerStats.recentMatches.slice(0, 5).map((match, idx) => {
+                                                            // Logic relies on assuming current player won/lost. 
+                                                            // Riot Match-V1 returns full match details. Complex to parse fully in frontend without more backend logic.
+                                                            // For MVP, we simply show "Played" or rely on a simple visual if we can't determine win easily.
+                                                            // Actually, Match-V1 is big. Let's just show a dot for now indicating activity.
+                                                            return (
+                                                                <div key={idx} className="w-2 h-8 rounded bg-slate-700" title="Recent Match (Result N/A)"></div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                    <p className="text-xs text-slate-500 mt-1">{playerStats.recentMatches.length} Matches Found</p>
+                                                </div>
                                             )}
                                         </div>
                                     )}
                                 </div>
 
-                                {/* Placeholder / Other Stats */}
+                                {/* Win Rate Card */}
                                 <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex flex-col justify-center items-center text-center">
                                     <Star className="text-yellow-500 mb-2" size={24} />
                                     <p className="text-slate-400 text-sm">Win Rate</p>
                                     <p className="text-xl font-bold">
+                                        {/* LoL Calculation */}
                                         {playerStats.leagues && playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5')
                                             ? Math.round((playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').wins / (playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').wins + playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').losses)) * 100) + '%'
-                                            : 'N/A'
+                                            : playerStats.recentMatches && playerStats.recentMatches.length > 0
+                                                ? <span className="text-sm text-slate-400 font-normal">Calculating...</span>
+                                                : 'N/A'
                                         }
                                     </p>
                                 </div>

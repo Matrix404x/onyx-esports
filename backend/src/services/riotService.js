@@ -245,6 +245,23 @@ export const getValorantRankedStats = async (puuid, shard) => {
 };
 
 
+// Get Valorant Match History (Recent Matches)
+export const getValorantMatchHistory = async (puuid, shard) => {
+    try {
+        const url = `https://${shard}.api.riotgames.com/val/match/v1/matches/by-puuid/${encodeURIComponent(puuid)}`;
+        console.log("[RiotAPI] ValMatches-V1:", url);
+
+        const response = await axiosInstance.get(url, {
+            headers: { "X-Riot-Token": getApiKey() }
+        });
+        return response.data; // List of matches
+    } catch (error) {
+        console.error("Riot API Error (ValMatches):", error.response?.data || error.message);
+        return []; // Return empty array on error
+    }
+};
+
+
 /* ===============================
    6️⃣ Orchestrator (Valorant)
 ================================ */
@@ -267,10 +284,14 @@ export const getValorantStats = async (gameName, tagLine, platformId) => {
         // Step 3: Get Ranked Stats
         const ranked = await getValorantRankedStats(account.puuid, shardData.activeShard);
 
+        // Step 4: Get Match History (For visual stats when unranked)
+        const recentMatches = await getValorantMatchHistory(account.puuid, shardData.activeShard);
+
         return {
             account,
             shard: shardData,
-            ranked
+            ranked,
+            recentMatches
         };
     } catch (error) {
         throw error;
