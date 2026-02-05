@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, Trophy, Users, MessageSquare, Mic, LogOut, Menu, X, Link as LinkIcon, Activity, Star, Shield } from 'lucide-react';
+import { LayoutDashboard, Trophy, Users, MessageSquare, Mic, LogOut, Menu, X, Link as LinkIcon, Activity, Star, Shield, Search } from 'lucide-react';
 import SpotlightCard from '../components/ui/SpotlightCard';
 import FriendsListSidebar from '../components/FriendsListSidebar';
 
@@ -83,6 +83,7 @@ export default function Dashboard() {
                 <nav className="p-4 space-y-2">
                     <NavItem icon={<LayoutDashboard />} label="Dashboard" onClick={() => navigate('/dashboard')} active={window.location.pathname === '/dashboard'} />
                     <NavItem icon={<Trophy />} label="Tournaments" onClick={() => navigate('/tournaments')} active={window.location.pathname === '/tournaments'} />
+                    <NavItem icon={<Search />} label="Find Players" onClick={() => navigate('/players')} active={window.location.pathname === '/players'} />
                     <NavItem icon={<Users />} label="Teams" onClick={() => navigate('/teams')} active={window.location.pathname === '/teams'} />
                     <NavItem icon={<MessageSquare />} label="Chat" onClick={() => navigate('/chat')} active={window.location.pathname === '/chat'} />
                     <NavItem icon={<Mic />} label="Voice Channels" onClick={() => navigate('/voice')} active={window.location.pathname === '/voice'} />

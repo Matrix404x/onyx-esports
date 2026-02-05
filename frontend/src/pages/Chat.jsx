@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { Send, Hash, Users, MessageSquare, Search, Bell, Settings, Menu, X, Volume2, ArrowLeft } from 'lucide-react';
+import UserPopover from '../components/UserPopover';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -292,10 +293,14 @@ export default function Chat() {
 
                             return (
                                 <div key={idx} className={`flex gap-4 group ${isSequence ? 'mt-1' : 'mt-6'}`}>
+
+
                                     {/* Avatar (only show for first message in sequence) */}
                                     <div className="w-10 shrink-0 flex flex-col items-center">
                                         {!isSequence ? (
-                                            <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-slate-400 border border-slate-700 bg-cover bg-center" style={{ backgroundImage: `url(https://ui-avatars.com/api/?name=${msg.sender}&background=random)` }}></div>
+                                            <UserPopover userId={msg.senderId} username={msg.sender}>
+                                                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-slate-400 border border-slate-700 bg-cover bg-center cursor-pointer hover:border-cyan-500 transition-colors" style={{ backgroundImage: `url(https://ui-avatars.com/api/?name=${msg.sender}&background=random)` }}></div>
+                                            </UserPopover>
                                         ) : (
                                             <span className="text-[10px] text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity w-10 text-center select-none">{msg.time}</span>
                                         )}
@@ -304,7 +309,9 @@ export default function Chat() {
                                     <div className="flex-1 max-w-4xl">
                                         {!isSequence && (
                                             <div className="flex items-center gap-2 mb-1">
-                                                <span className={`font-bold hover:underline cursor-pointer ${isMe ? 'text-cyan-400' : 'text-white'}`}>{msg.sender}</span>
+                                                <UserPopover userId={msg.senderId} username={msg.sender}>
+                                                    <span className={`font-bold hover:underline cursor-pointer ${isMe ? 'text-cyan-400' : 'text-white'}`}>{msg.sender}</span>
+                                                </UserPopover>
                                                 <span className="text-xs text-slate-500">{msg.time}</span>
                                             </div>
                                         )}

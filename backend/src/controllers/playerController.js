@@ -258,3 +258,27 @@ export const getUserProfile = async (req, res) => {
         res.status(500).json({ message: "Server Error" });
     }
 };
+
+// Search Players
+export const searchPlayers = async (req, res) => {
+    try {
+        const { q } = req.query;
+        if (!q) return res.json([]);
+
+        // Search by username or summonerName (case insensitive)
+        const users = await User.find({
+            $or: [
+                { username: { $regex: q, $options: 'i' } },
+                { summonerName: { $regex: q, $options: 'i' } }
+            ]
+        }).select('username avatar summonerName tagLine _id friends'); // return minimal info
+
+        // Map to include friend status relative to requestor?
+        // For now, let frontend handle it by comparing with own friend list.
+        res.json(users);
+
+    } catch (err) {
+        console.error("Search Error:", err.message);
+        res.status(500).json({ message: "Server Error" });
+    }
+};

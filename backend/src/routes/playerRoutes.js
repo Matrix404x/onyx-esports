@@ -1,5 +1,5 @@
 import express from 'express';
-import { linkRiotAccount, getMyStats, getUserProfile } from '../controllers/playerController.js';
+import { linkRiotAccount, getMyStats, getUserProfile, searchPlayers } from '../controllers/playerController.js';
 import auth from '../middleware/auth.js';
 
 const router = express.Router();
@@ -18,5 +18,10 @@ router.get('/stats', auth, getMyStats);
 // @desc    Get user profile by ID (Public)
 // @access  Private (or Public? auth middleware used for now)
 router.get('/profile/:userId', auth, getUserProfile);
+
+// @route   GET api/player/search
+// @desc    Search players
+// @access  Public (or Private depending on needs, using auth for now)
+router.get('/search', auth, searchPlayers);
 
 export default router;

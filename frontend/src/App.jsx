@@ -9,6 +9,7 @@ import CreateTournament from './pages/CreateTournament';
 import Profile from './pages/Profile';
 import Tournaments from './pages/Tournaments';
 import Teams from './pages/Teams';
+import FindPlayers from './pages/FindPlayers';
 
 import Landing from './pages/Landing';
 import AdminLayout from './components/AdminLayout';
@@ -26,6 +27,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/tournaments" element={<Tournaments />} />
         <Route path="/teams" element={<Teams />} />
+        <Route path="/players" element={<FindPlayers />} />
         <Route path="/tournament/:id" element={<TournamentDetails />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/voice" element={<Voice />} />

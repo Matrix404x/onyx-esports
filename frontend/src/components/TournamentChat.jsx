@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 import { Send, MessageSquare, User, MoreVertical, ChevronDown, ChevronUp } from 'lucide-react';
+import UserPopover from '../components/UserPopover';
 import { useAuth } from '../context/AuthContext';
 import { API_URL } from '../config';
 
@@ -146,17 +147,22 @@ export default function TournamentChat({ tournamentId }) {
 
                         return (
                             <div key={idx} className={`flex gap-3 ${isMe ? 'flex-row-reverse' : ''} animate-fade-in`}>
+
                                 {/* Avatar */}
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border ${isMe ? 'bg-cyan-900 border-cyan-700 text-cyan-200' : 'bg-slate-800 border-slate-700 text-slate-400'} shrink-0`}>
-                                    {msg.sender[0].toUpperCase()}
-                                </div>
+                                <UserPopover userId={msg.senderId} username={msg.sender}>
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border ${isMe ? 'bg-cyan-900 border-cyan-700 text-cyan-200' : 'bg-slate-800 border-slate-700 text-slate-400'} shrink-0 cursor-pointer hover:border-cyan-500 transition-colors`}>
+                                        {msg.sender[0].toUpperCase()}
+                                    </div>
+                                </UserPopover>
 
                                 {/* Message Bubble */}
                                 <div className={`flex flex-col max-w-[80%] ${isMe ? 'items-end' : 'items-start'}`}>
                                     <div className="flex items-baseline gap-2 mb-1">
-                                        <span className={`text-xs font-bold ${isMe ? 'text-cyan-400' : 'text-slate-300'}`}>
-                                            {msg.sender}
-                                        </span>
+                                        <UserPopover userId={msg.senderId} username={msg.sender}>
+                                            <span className={`text-xs font-bold cursor-pointer hover:underline ${isMe ? 'text-cyan-400' : 'text-slate-300'}`}>
+                                                {msg.sender}
+                                            </span>
+                                        </UserPopover>
                                         <span className="text-[10px] text-slate-600">{msg.time}</span>
                                     </div>
 
