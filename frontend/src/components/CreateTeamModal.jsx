@@ -15,7 +15,7 @@ export default function CreateTeamModal({ onClose, onTeamCreated }) {
         try {
             const token = localStorage.getItem('token');
             const res = await axios.post('/api/teams', formData, {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { 'x-auth-token': token }
             });
             onTeamCreated(res.data);
             onClose();

@@ -32,7 +32,7 @@ export default function Teams() {
         if (!window.confirm('Are you sure you want to delete this team?')) return;
         try {
             await axios.delete(`/api/teams/${teamId}`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'x-auth-token': localStorage.getItem('token') }
             });
             setTeams(teams.filter(t => t._id !== teamId));
         } catch (err) {

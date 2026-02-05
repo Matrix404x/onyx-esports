@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const token = localStorage.getItem('token');
             const res = await axios.put('/api/auth/update', data, {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { 'x-auth-token': token }
             });
             // Merge new data with existing user state including role/id which might not be in response if sparse
             // Actually controller returns full user minus password
