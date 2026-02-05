@@ -49,6 +49,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: 'lol' // 'lol' or 'val'
     },
+    manualStats: {
+        rank: { type: String, default: 'Unranked' },
+        role: { type: String, default: '' },
+        main: { type: String, default: '' }
+    },
     role: {
         type: String,
         enum: ['user', 'admin'],

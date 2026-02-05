@@ -1,4 +1,4 @@
-import { User, Trophy, Target, Swords, Clock, Edit2, ArrowLeft } from 'lucide-react';
+import { User, Trophy, Target, Swords, Clock, Edit2, ArrowLeft, Star } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -37,7 +37,9 @@ export default function Profile() {
                     matchesPlayed: res.data.matchesPlayed,
                     tournamentsWon: res.data.tournamentsWon,
                     winRate: res.data.winRate,
-                    rank: res.data.rank
+                    rank: res.data.rank,
+                    role: res.data.manualStats?.role || 'Flex',
+                    main: res.data.manualStats?.main || 'Fill'
                 });
                 setMatchHistory(res.data.matchHistory);
                 setLoading(false);
@@ -117,6 +119,8 @@ export default function Profile() {
                     <StatCard icon={<Trophy className="text-yellow-400" />} label="Wins" value={stats.tournamentsWon} />
                     <StatCard icon={<Target className="text-green-400" />} label="Win Rate" value={stats.winRate} />
                     <StatCard icon={<User className="text-blue-400" />} label="Rank" value={stats.rank} />
+                    <StatCard icon={<Swords className="text-purple-400" />} label="Role" value={stats.role || '-'} />
+                    <StatCard icon={<Star className="text-orange-400" />} label="Main" value={stats.main || '-'} />
                 </div>
 
                 {/* Match History */}

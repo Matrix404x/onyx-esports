@@ -106,6 +106,11 @@ export const getMyStats = async (req, res) => {
             displayRank = VALORANT_TIERS[stats.ranked.competitiveTier] || "Unranked";
         }
 
+        // If API says Unranked but User has set Manual Rank, use Manual
+        if ((!displayRank || displayRank === 'Unranked') && user.manualStats?.rank && user.manualStats.rank !== 'Unranked') {
+            displayRank = user.manualStats.rank + " (Manual)";
+        }
+
         // 2. Calculate Win Rate & Matches
         const matches = stats.recentMatches || [];
         const matchesPlayed = matches.length;
@@ -181,10 +186,30 @@ export const getMyStats = async (req, res) => {
 
         res.json(finalStats);
 
+        // ... existing code ...
+
     } catch (err) {
         console.error("Get Stats Error:", err.message);
-        // Fallback to mock data if API fails completely to avoid broken UI? 
-        // No, better to show error or empty state, but for now just 500.
+
+        // FALLBACK: Return Manual Stats if Riot API fails
+        const user = await User.findById(req.user.id);
+        if (user) {
+            return res.json({
+                matchesPlayed: 0,
+                tournamentsWon: 0,
+                winRate: 'N/A',
+                rank: user.manualStats?.rank || "Unranked",
+                matchHistory: [],
+                account: {
+                    gameName: user.summonerName || user.username,
+                    tagLine: user.tagLine || 'NA1'
+                },
+                region: user.region,
+                isManual: true, // Flag for frontend to know it's manual data
+                manualStats: user.manualStats
+            });
+        }
+
         res.status(500).json({ message: "Failed to fetch stats" });
     }
 };

@@ -18,6 +18,11 @@ export default function SettingsModal({ onClose, status, setStatus }) {
     // Profile Edit State
     const [bio, setBio] = useState(user?.bio || '');
     const [previewImage, setPreviewImage] = useState(user?.avatar || '');
+    const [manualStats, setManualStats] = useState({
+        rank: user?.manualStats?.rank || 'Unranked',
+        role: user?.manualStats?.role || 'Duelist',
+        main: user?.manualStats?.main || ''
+    });
     const [uploading, setUploading] = useState(false);
     const [saving, setSaving] = useState(false);
 
@@ -115,7 +120,7 @@ export default function SettingsModal({ onClose, status, setStatus }) {
 
     const handleSaveProfile = async () => {
         setSaving(true);
-        const result = await updateUser({ bio, avatar: previewImage });
+        const result = await updateUser({ bio, avatar: previewImage, manualStats });
         setSaving(false);
         if (result.success) {
             onClose();
@@ -146,6 +151,16 @@ export default function SettingsModal({ onClose, status, setStatus }) {
                         className={`text-left px-3 py-2 rounded-lg mb-1 font-medium text-sm transition-colors ${activeTab === 'voice' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'}`}
                     >
                         Voice & Video
+                    </button>
+
+                    <div className="h-px bg-slate-800 my-4 mx-2" />
+
+                    <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 px-2">Game Info</h2>
+                    <button
+                        onClick={() => setActiveTab('game')}
+                        className={`text-left px-3 py-2 rounded-lg mb-1 font-medium text-sm transition-colors ${activeTab === 'game' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'}`}
+                    >
+                        Game Profile
                     </button>
 
                     <div className="mt-auto">
@@ -275,6 +290,69 @@ export default function SettingsModal({ onClose, status, setStatus }) {
                                     <span>-30dB</span>
                                     <span>0dB</span>
                                 </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'game' && (
+                        <div className="animate-fade-in">
+                            <h2 className="text-xl font-bold text-white mb-6">Game Profile</h2>
+                            <p className="text-slate-400 text-sm mb-6">Manually update your game details if automatic sync is unavailable.</p>
+
+                            <div className="space-y-6 max-w-lg">
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Rank</label>
+                                    <select
+                                        value={manualStats.rank}
+                                        onChange={(e) => setManualStats({ ...manualStats, rank: e.target.value })}
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white appearance-none focus:outline-none focus:border-cyan-500 transition-colors"
+                                    >
+                                        <option value="Unranked">Unranked</option>
+                                        <option value="Iron">Iron</option>
+                                        <option value="Bronze">Bronze</option>
+                                        <option value="Silver">Silver</option>
+                                        <option value="Gold">Gold</option>
+                                        <option value="Platinum">Platinum</option>
+                                        <option value="Diamond">Diamond</option>
+                                        <option value="Ascendant">Ascendant</option>
+                                        <option value="Immortal">Immortal</option>
+                                        <option value="Radiant">Radiant</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Role</label>
+                                    <select
+                                        value={manualStats.role}
+                                        onChange={(e) => setManualStats({ ...manualStats, role: e.target.value })}
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white appearance-none focus:outline-none focus:border-cyan-500 transition-colors"
+                                    >
+                                        <option value="Duelist">Duelist</option>
+                                        <option value="Initiator">Initiator</option>
+                                        <option value="Controller">Controller</option>
+                                        <option value="Sentinel">Sentinel</option>
+                                        <option value="Flex">Flex</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Main Agent / Champion</label>
+                                    <input
+                                        type="text"
+                                        value={manualStats.main}
+                                        onChange={(e) => setManualStats({ ...manualStats, main: e.target.value })}
+                                        placeholder="e.g. Jett"
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                                    />
+                                </div>
+
+                                <button
+                                    onClick={handleSaveProfile}
+                                    disabled={saving}
+                                    className="px-6 py-2 bg-cyan-600 hover:bg-cyan-500 disabled:bg-slate-700 text-white font-bold rounded-lg transition-colors"
+                                >
+                                    {saving ? 'Saving...' : 'Save Changes'}
+                                </button>
                             </div>
                         </div>
                     )}

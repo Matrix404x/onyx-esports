@@ -88,13 +88,14 @@ export const login = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
     try {
-        const { bio, avatar } = req.body;
+        const { bio, avatar, manualStats } = req.body;
         const userId = req.user.id;
 
         // Build update object
         const updateFields = {};
         if (bio !== undefined) updateFields.bio = bio;
         if (avatar !== undefined) updateFields.avatar = avatar;
+        if (manualStats !== undefined) updateFields.manualStats = manualStats;
 
         const user = await User.findByIdAndUpdate(
             userId,

@@ -194,7 +194,14 @@ export default function Dashboard() {
                                     ) : (
                                         /* Valorant Stats */
                                         <div className="flex flex-col gap-2">
-                                            {playerStats.ranked ? (
+                                            {playerStats.isManual ? (
+                                                <div>
+                                                    <p className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                                                        {playerStats.rank}
+                                                    </p>
+                                                    <p className="text-xs text-slate-400 mt-1">Manual Entry</p>
+                                                </div>
+                                            ) : playerStats.ranked ? (
                                                 <div>
                                                     <p className="text-xl font-bold text-white">Ranked Rating</p>
                                                     <p className="text-cyan-400 font-medium">Rank Data Connected</p>
