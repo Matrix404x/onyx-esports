@@ -1,6 +1,7 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../config';
+import Loading from '../components/Loading';
 
 const AuthContext = createContext();
 
@@ -49,14 +50,31 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const updateUser = async (data) => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.put('/api/auth/update', data, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            // Merge new data with existing user state including role/id which might not be in response if sparse
+            // Actually controller returns full user minus password
+            setUser(res.data);
+            localStorage.setItem('user', JSON.stringify(res.data));
+            return { success: true };
+        } catch (error) {
+            console.error("Update Profile Error:", error);
+            return { success: false, message: error.response?.data?.message || 'Update failed' };
+        }
+    };
+
     const logout = () => {
         setUser(null);
         localStorage.removeItem('user');
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, loading }}>
-            {!loading && children}
+        <AuthContext.Provider value={{ user, login, register, logout, updateUser, loading }}>
+            {loading ? <Loading fullScreen={true} text="Initializing..." /> : children}
         </AuthContext.Provider>
     );
 };

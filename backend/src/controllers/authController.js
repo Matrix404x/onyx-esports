@@ -85,3 +85,30 @@ export const login = async (req, res) => {
         res.status(500).send('Server Error');
     }
 };
+
+export const updateProfile = async (req, res) => {
+    try {
+        const { bio, avatar } = req.body;
+        const userId = req.user.id;
+
+        // Build update object
+        const updateFields = {};
+        if (bio !== undefined) updateFields.bio = bio;
+        if (avatar !== undefined) updateFields.avatar = avatar;
+
+        const user = await User.findByIdAndUpdate(
+            userId,
+            { $set: updateFields },
+            { new: true, runValidators: true }
+        ).select('-password');
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json(user);
+    } catch (err) {
+        console.error("Update Profile Error:", err.message);
+        res.status(500).send('Server Error');
+    }
+};

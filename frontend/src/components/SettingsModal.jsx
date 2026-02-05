@@ -1,13 +1,25 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, User, Volume2, Mic, Activity } from 'lucide-react';
+import { X, User, Volume2, Mic, Activity, Upload, Save, Loader } from 'lucide-react';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
+import { API_URL } from '../config';
 
-export default function SettingsModal({ onClose, user, status, setStatus }) {
+export default function SettingsModal({ onClose, status, setStatus }) {
+    const { user, updateUser } = useAuth();
     const [activeTab, setActiveTab] = useState('profile');
+
+    // Voice Settings State
     const [devices, setDevices] = useState([]);
     const [selectedDevice, setSelectedDevice] = useState('');
     const [micLevel, setMicLevel] = useState(0);
     const audioContextRef = useRef(null);
     const streamRef = useRef(null);
+
+    // Profile Edit State
+    const [bio, setBio] = useState(user?.bio || '');
+    const [previewImage, setPreviewImage] = useState(user?.avatar || '');
+    const [uploading, setUploading] = useState(false);
+    const [saving, setSaving] = useState(false);
 
     // Fetch Audio Devices
     useEffect(() => {
@@ -17,6 +29,14 @@ export default function SettingsModal({ onClose, user, status, setStatus }) {
             if (inputs.length > 0) setSelectedDevice(inputs[0].deviceId);
         });
     }, []);
+
+    // Load user data when opening
+    useEffect(() => {
+        if (user) {
+            setBio(user.bio || '');
+            setPreviewImage(user.avatar || '');
+        }
+    }, [user]);
 
     // Mic Test Logic
     useEffect(() => {
@@ -72,6 +92,38 @@ export default function SettingsModal({ onClose, user, status, setStatus }) {
         };
     }, [activeTab, selectedDevice]);
 
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        setUploading(true);
+        try {
+            const res = await axios.post(`${API_URL}/api/upload`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            setPreviewImage(res.data.url);
+        } catch (error) {
+            console.error("Upload failed", error);
+            alert("Failed to upload image.");
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleSaveProfile = async () => {
+        setSaving(true);
+        const result = await updateUser({ bio, avatar: previewImage });
+        setSaving(false);
+        if (result.success) {
+            onClose();
+        } else {
+            alert("Failed to update profile.");
+        }
+    };
+
     return (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center backdrop-blur-sm animate-fade-in">
             <div className="w-full max-w-4xl h-[600px] bg-slate-900 rounded-xl overflow-hidden shadow-2xl flex border border-slate-800">
@@ -115,18 +167,45 @@ export default function SettingsModal({ onClose, user, status, setStatus }) {
                             <h2 className="text-xl font-bold text-white mb-6">My Account</h2>
 
                             <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-6 mb-8 border border-slate-700">
-                                <div className="flex items-center gap-6">
-                                    <div className="w-24 h-24 rounded-full bg-slate-700 flex items-center justify-center text-4xl font-bold text-white border-4 border-slate-900 shadow-xl">
-                                        {user?.username?.[0] || 'U'}
+                                <div className="flex items-start gap-6">
+                                    <div className="relative group">
+                                        <div className="w-24 h-24 rounded-full bg-slate-700 overflow-hidden border-4 border-slate-900 shadow-xl flex items-center justify-center">
+                                            {previewImage ? (
+                                                <img src={previewImage} alt="Avatar" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="text-4xl font-bold text-white">{user?.username?.[0] || 'U'}</div>
+                                            )}
+                                        </div>
+                                        <label className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                                            {uploading ? <Loader className="animate-spin text-white" /> : <Upload className="text-white" size={24} />}
+                                            <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
+                                        </label>
                                     </div>
+
                                     <div className="flex-1">
-                                        <div className="flex justify-between items-center mb-1">
-                                            <h3 className="text-2xl font-bold text-white">{user?.username || 'User'}</h3>
-                                            <button className="px-4 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold rounded-md transition-colors">
-                                                Edit Profile
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <h3 className="text-2xl font-bold text-white">{user?.username || 'User'}</h3>
+                                                <p className="text-slate-400 text-sm">#{user?.id?.slice(0, 4) || '0000'}</p>
+                                            </div>
+                                            <button
+                                                onClick={handleSaveProfile}
+                                                disabled={saving}
+                                                className="flex items-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 disabled:bg-slate-700 text-white text-sm font-bold rounded-md transition-colors"
+                                            >
+                                                {saving ? 'Saving...' : <><Save size={16} /> Save Changes</>}
                                             </button>
                                         </div>
-                                        <p className="text-slate-400 text-sm">#{user?.id?.slice(0, 4) || '0000'}</p>
+
+                                        <div className="mt-4">
+                                            <label className="block text-xs font-bold text-slate-400 uppercase mb-2">About Me</label>
+                                            <textarea
+                                                value={bio}
+                                                onChange={(e) => setBio(e.target.value)}
+                                                placeholder="Write something about yourself..."
+                                                className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-cyan-500 transition-colors h-24 resize-none"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
