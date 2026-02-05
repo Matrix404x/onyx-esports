@@ -31,6 +31,7 @@ function App() {
         <Route path="/voice" element={<Voice />} />
         <Route path="/create-tournament" element={<CreateTournament />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/profile/:userId" element={<Profile />} />
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />

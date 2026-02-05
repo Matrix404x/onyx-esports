@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { LayoutDashboard, Trophy, Users, MessageSquare, Mic, LogOut, Menu, X, Link as LinkIcon, Activity, Star, Shield } from 'lucide-react';
 import SpotlightCard from '../components/ui/SpotlightCard';
+import FriendsListSidebar from '../components/FriendsListSidebar';
 
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -111,7 +112,7 @@ export default function Dashboard() {
             </aside>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col h-screen overflow-hidden">
+            <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
                 {/* Topbar */}
                 <header className="h-20 bg-slate-900/50 backdrop-blur border-b border-slate-800 flex items-center justify-between px-6">
                     <button onClick={() => setSidebarOpen(true)} className="md:hidden text-slate-400 hover:text-white">
@@ -271,6 +272,17 @@ export default function Dashboard() {
                         )}
                     </div>
                 </main>
+
+                {/* Friends Sidebar (Desktop) */}
+                {/* We need to decide where to put it. 
+                    Let's make it a drawer or a persistent right sidebar on large screens.
+                    For now, let's make it floating or part of the layout.
+                    Given the layout is flex-row (sidebar + main), we can add another column.
+                */}
+            </div>
+
+            <div className="hidden lg:block h-full">
+                <FriendsListSidebar />
             </div>
 
             {/* Link Modal */}

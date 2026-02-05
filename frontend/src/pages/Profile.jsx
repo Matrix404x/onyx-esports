@@ -1,15 +1,16 @@
 import { User, Trophy, Target, Swords, Clock, Edit2, ArrowLeft, Star } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import FriendRequestButton from '../components/FriendRequestButton';
 import axios from 'axios';
-import { API_URL } from '../config';
 import SettingsModal from '../components/SettingsModal';
 import Loading from '../components/Loading';
 
 export default function Profile() {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { userId } = useParams(); // Optional param for viewing others
 
     const [stats, setStats] = useState({
         matchesPlayed: 0,
@@ -21,7 +22,18 @@ export default function Profile() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showSettings, setShowSettings] = useState(false);
-    const [status, setStatus] = useState('online'); // Local state for now just for UI
+    const [status, setStatus] = useState('online');
+
+    // Unified user object state to render (either "me" or "them")
+    const [displayUser, setDisplayUser] = useState(null);
+
+    useEffect(() => {
+        // If no userId param, or userId matches logged in user, we display 'user' from context
+        // But we wait for fetchStats to confirm data sync or just use context immediately
+        if (!userId && user) {
+            setDisplayUser(user);
+        }
+    }, [user, userId]);
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -29,23 +41,44 @@ export default function Profile() {
                 const token = localStorage.getItem('token');
                 if (!token) return;
 
-                const res = await axios.get('/api/player/stats', {
+                let url = '/api/player/stats'; // Default to my stats
+                if (userId && user && userId !== user._id) {
+                    url = `/api/player/profile/${userId}`;
+                }
+
+                const res = await axios.get(url, {
                     headers: { 'x-auth-token': token }
                 });
 
+                const data = res.data;
+
                 setStats({
-                    matchesPlayed: res.data.matchesPlayed,
-                    tournamentsWon: res.data.tournamentsWon,
-                    winRate: res.data.winRate,
-                    rank: res.data.rank,
-                    role: res.data.manualStats?.role || 'Flex',
-                    main: res.data.manualStats?.main || 'Fill'
+                    matchesPlayed: data.matchesPlayed || 0,
+                    tournamentsWon: data.tournamentsWon || 0,
+                    winRate: data.winRate || 'N/A',
+                    rank: data.rank || 'Unranked',
+                    role: data.role || 'Flex',
+                    main: data.main || 'Fill'
                 });
-                setMatchHistory(res.data.matchHistory);
+                setMatchHistory(data.matchHistory || []);
+
+                // If viewing other profile, the API returns the user profile info merged or separate
+                // My `getUserProfile` returns the user info at root of object
+                // My `getMyStats` returns { account, summoner, ... } and relies on local `user` for avatar/username in dashboard
+                // Let's ensure `displayUser` is set correctly.
+
+                if (userId && user && userId !== user._id) {
+                    // It's another user
+                    setDisplayUser(data);
+                } else if (user) {
+                    // It's me, ensure displayUser is set (useEffect above does it, but this confirms)
+                    setDisplayUser(user);
+                }
+
                 setLoading(false);
             } catch (err) {
                 console.error("Failed to fetch stats:", err);
-                setError(err.response?.data?.message || "Failed to load statistics. Please make sure your Riot account is linked.");
+                setError(err.response?.data?.message || "Failed to load profile.");
                 setLoading(false);
             }
         };
@@ -53,9 +86,12 @@ export default function Profile() {
         if (user) {
             fetchStats();
         }
-    }, [user]);
+    }, [user, userId]);
 
     if (loading) return <Loading text="Loading Profile..." />;
+
+    // Helper to decide if "Me"
+    const isMe = !userId || (user && user._id === userId);
 
     return (
         <div className="min-h-screen bg-slate-950 text-white p-6 pb-20">
@@ -74,41 +110,45 @@ export default function Profile() {
 
                     <div className="relative flex flex-col md:flex-row items-center md:items-start gap-6 z-10">
                         <div className="w-32 h-32 rounded-full bg-slate-950 border-4 border-slate-800 flex items-center justify-center text-4xl font-bold pb-2 shadow-xl overflow-hidden">
-                            {user?.avatar ? (
-                                <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                            {displayUser?.avatar ? (
+                                <img src={displayUser.avatar} alt="Avatar" className="w-full h-full object-cover" />
                             ) : (
                                 <div className="w-full h-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-                                    {user?.username?.[0] || 'U'}
+                                    {displayUser?.username?.[0] || 'U'}
                                 </div>
                             )}
                         </div>
 
                         <div className="flex-1 text-center md:text-left mb-2 md:pt-14">
-                            <h1 className="text-3xl font-bold">{user?.username || 'Guest User'}</h1>
-                            <p className="text-slate-400">@{user?.username?.toLowerCase() || 'guest'} • Member since Feb 2024</p>
+                            <h1 className="text-3xl font-bold">{displayUser?.username || 'Guest User'}</h1>
+                            <p className="text-slate-400">@{displayUser?.username?.toLowerCase() || 'guest'} • Member since Feb 2024</p>
 
                             {/* Display linked Riot ID if available */}
-                            {user?.summonerName && (
+                            {displayUser?.summonerName && (
                                 <p className="text-sm text-cyan-400 mt-1">
-                                    Linked: {user.summonerName} #{user.tagLine}
+                                    Linked: {displayUser.summonerName} #{displayUser.tagLine || 'NA1'}
                                 </p>
                             )}
 
                             {/* Bio Section */}
-                            {user?.bio && (
+                            {displayUser?.bio && (
                                 <div className="mt-4 p-3 bg-slate-950/50 border border-slate-800 rounded-lg max-w-lg">
-                                    <p className="text-slate-300 text-sm italic">"{user.bio}"</p>
+                                    <p className="text-slate-300 text-sm italic">"{displayUser.bio}"</p>
                                 </div>
                             )}
                         </div>
 
                         <div className="md:pt-14">
-                            <button
-                                onClick={() => setShowSettings(true)}
-                                className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors"
-                            >
-                                <Edit2 size={16} /> Edit Profile
-                            </button>
+                            {isMe ? (
+                                <button
+                                    onClick={() => setShowSettings(true)}
+                                    className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors"
+                                >
+                                    <Edit2 size={16} /> Edit Profile
+                                </button>
+                            ) : (
+                                <FriendRequestButton targetUserId={userId} />
+                            )}
                         </div>
                     </div>
                 </div>
