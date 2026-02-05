@@ -171,7 +171,12 @@ export const getMyStats = async (req, res) => {
             tournamentsWon,
             winRate,
             rank: displayRank,
-            matchHistory: formattedHistory
+            matchHistory: formattedHistory,
+            // Pass through Riot details for Dashboard display
+            account: stats.account,
+            shard: stats.shard,
+            summoner: stats.summoner,
+            region: user.region // explicit region from user 
         };
 
         res.json(finalStats);

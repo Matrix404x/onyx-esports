@@ -156,7 +156,10 @@ export default function Dashboard() {
                                         )}
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-bold">{playerStats.account.gameName} <span className="text-slate-500">#{playerStats.account.tagLine}</span></h3>
+                                        <h3 className="text-lg font-bold">
+                                            {playerStats.account?.gameName || playerStats.gameName || 'Unknown'}
+                                            <span className="text-slate-500">#{playerStats.account?.tagLine || playerStats.tagLine || '0000'}</span>
+                                        </h3>
                                         <p className="text-sm text-slate-400 capitalize">{
                                             playerStats.shard
                                                 ? `Valorant - ${playerStats.shard.activeShard}`
