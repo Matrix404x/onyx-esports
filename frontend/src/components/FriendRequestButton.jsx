@@ -49,7 +49,9 @@ export default function FriendRequestButton({ targetUserId }) {
     const sendRequest = async () => {
         setLoading(true);
         try {
-            await axios.post(`/api/friends/request/${targetUserId}`);
+            await axios.post(`/api/friends/request/${targetUserId}`, {}, {
+                headers: { 'x-auth-token': localStorage.getItem('token') }
+            });
             setStatus('pending');
             alert('Friend request sent!');
         } catch (err) {
