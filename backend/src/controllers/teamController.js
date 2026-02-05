@@ -84,3 +84,72 @@ export const deleteTeam = async (req, res) => {
         res.status(500).send('Server Error');
     }
 };
+
+// Add Member (Captain only)
+export const addMember = async (req, res) => {
+    try {
+        const { username } = req.body;
+        const team = await Team.findById(req.params.id);
+
+        if (!team) return res.status(404).json({ message: 'Team not found' });
+
+        // Check Permissions
+        if (team.captain.toString() !== req.user.id) {
+            return res.status(401).json({ message: 'Not authorized to add members' });
+        }
+
+        // Find user to add
+        const userToAdd = await import('../models/User.js').then(m => m.default.findOne({ username }));
+        if (!userToAdd) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if already in team
+        if (team.members.includes(userToAdd._id)) {
+            return res.status(400).json({ message: 'User already in team' });
+        }
+
+        team.members.push(userToAdd._id);
+        await team.save();
+
+        const updatedTeam = await Team.findById(req.params.id)
+            .populate('captain', 'username avatar')
+            .populate('members', 'username avatar');
+
+        res.json(updatedTeam);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
+// Remove Member (Captain only)
+export const removeMember = async (req, res) => {
+    try {
+        const team = await Team.findById(req.params.id);
+
+        if (!team) return res.status(404).json({ message: 'Team not found' });
+
+        // Check Permissions
+        if (team.captain.toString() !== req.user.id) {
+            return res.status(401).json({ message: 'Not authorized to remove members' });
+        }
+
+        // Cannot remove captain
+        if (req.params.userId === team.captain.toString()) {
+            return res.status(400).json({ message: 'Cannot remove captain' });
+        }
+
+        team.members = team.members.filter(member => member.toString() !== req.params.userId);
+        await team.save();
+
+        const updatedTeam = await Team.findById(req.params.id)
+            .populate('captain', 'username avatar')
+            .populate('members', 'username avatar');
+
+        res.json(updatedTeam);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};

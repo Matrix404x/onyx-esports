@@ -5,13 +5,41 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import SpotlightCard from '../components/ui/SpotlightCard';
 import CreateTeamModal from '../components/CreateTeamModal';
+import TeamDetailsModal from '../components/TeamDetailsModal';
 
 export default function Teams() {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [teams, setTeams] = useState([]);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [selectedTeam, setSelectedTeam] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const fetchTeams = async () => {
+        try {
+            const res = await axios.get('/api/teams');
+            setTeams(res.data);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCreateTeam = (newTeam) => {
+        setTeams([...teams, newTeam]);
+    };
+
+    // ... existing handleDeleteTeam ...
+
+    // In render map:
+    // ...
+    <button
+        onClick={() => setSelectedTeam(team)}
+        className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+    >
+        View Roster →
+    </button>
 
     const fetchTeams = async () => {
         try {
@@ -118,13 +146,32 @@ export default function Teams() {
                 )}
             </div>
 
-            {/* Create Modal */}
-            {showCreateModal && (
-                <CreateTeamModal
-                    onClose={() => setShowCreateModal(false)}
-                    onTeamCreated={(newTeam) => setTeams([...teams, newTeam])}
-                />
-            )}
+                )}
         </div>
+
+            {/* Create Modal */ }
+    {
+        showCreateModal && (
+            <CreateTeamModal
+                onClose={() => setShowCreateModal(false)}
+                onTeamCreated={(newTeam) => setTeams([...teams, newTeam])}
+            />
+        )
+    }
+
+    {/* Team Details / Roster Modal */ }
+    {
+        selectedTeam && (
+            <TeamDetailsModal
+                team={selectedTeam}
+                onClose={() => setSelectedTeam(null)}
+                onUpdate={(updatedTeam) => {
+                    setTeams(teams.map(t => t._id === updatedTeam._id ? updatedTeam : t));
+                    setSelectedTeam(updatedTeam);
+                }}
+            />
+        )
+    }
+        </div >
     );
 }
