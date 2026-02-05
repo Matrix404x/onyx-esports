@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Gamepad2, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -13,9 +14,10 @@ export default function Login() {
         e.preventDefault();
         const res = await login(email, password);
         if (res.success) {
+            toast.success("Logged in successfully");
             navigate('/dashboard');
         } else {
-            alert(res.message);
+            toast.error(res.message);
         }
     };
     return (

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Users, Plus, Trash2, Shield } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import SpotlightCard from '../components/ui/SpotlightCard';
@@ -44,7 +45,8 @@ export default function Teams() {
             });
             setTeams(teams.filter(t => t._id !== teamId));
         } catch (err) {
-            alert(err.response?.data?.message || 'Failed to delete team');
+            console.error(err);
+            toast.error(err.response?.data?.message || 'Failed to delete team');
         }
     };
 

@@ -31,9 +31,10 @@ const AdminTournaments = () => {
         try {
             await axios.delete(`/api/admin/tournaments/${id}`, config);
             setTournaments(tournaments.filter(t => t._id !== id));
+            toast.success("Tournament deleted");
         } catch (err) {
             console.error("Error deleting tournament:", err);
-            alert("Failed to delete tournament");
+            toast.error("Failed to delete tournament");
         }
     };
 
@@ -64,8 +65,8 @@ const AdminTournaments = () => {
                                 </td>
                                 <td className="p-4">
                                     <span className={`px-2 py-1 rounded w-fit text-xs font-bold ${tournament.status === 'upcoming' ? 'bg-cyan-500/20 text-cyan-300' :
-                                            tournament.status === 'ongoing' ? 'bg-green-500/20 text-green-300' :
-                                                'bg-slate-700 text-slate-300'
+                                        tournament.status === 'ongoing' ? 'bg-green-500/20 text-green-300' :
+                                            'bg-slate-700 text-slate-300'
                                         }`}>
                                         {tournament.status ? tournament.status.toUpperCase() : 'UNKNOWN'}
                                     </span>

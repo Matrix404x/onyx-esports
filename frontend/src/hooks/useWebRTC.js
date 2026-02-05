@@ -67,7 +67,7 @@ export default function useWebRTC(channelId, user) {
             })
             .catch(err => {
                 console.error("Error accessing microphone:", err);
-                alert("Could not access microphone: " + err.message + ". Please ensure you have granted permission.");
+                toast.error("Could not access microphone: " + err.message + ". Please ensure you have granted permission.", { duration: 5000 });
             });
 
         return () => {

@@ -38,14 +38,14 @@ export default function TournamentDetails() {
             await axios.post(`/api/tournaments/${id}/join`, {}, {
                 headers: { 'x-auth-token': token }
             });
-            alert("Joined successfully!");
+            toast.success("Joined successfully!");
             setIsJoined(true);
             setShowPayment(false);
             // Refresh data
             const res = await axios.get(`/api/tournaments/${id}`);
             setTournament(res.data);
         } catch (err) {
-            alert(err.response?.data?.message || "Failed to join");
+            toast.error(err.response?.data?.message || "Failed to join");
         }
     };
 

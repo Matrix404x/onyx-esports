@@ -1,22 +1,30 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trophy, UserPlus } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
 export default function Register() {
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [formData, setFormData] = useState({
+        username: '',
+        email: '',
+        password: ''
+    });
     const { register } = useAuth();
     const navigate = useNavigate();
 
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const res = await register(username, email, password);
+        const res = await register(formData.username, formData.email, formData.password);
         if (res.success) {
+            toast.success("Registration Successful!");
             navigate('/dashboard');
         } else {
-            alert(res.message);
+            toast.error(res.message);
         }
     };
     return (

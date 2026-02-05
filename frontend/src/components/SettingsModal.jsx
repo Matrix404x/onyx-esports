@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, User, Volume2, Mic, Activity, Upload, Save, Loader } from 'lucide-react';
+import { X, Camera, Save, Mic, Volume2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { API_URL } from '../config';
@@ -110,9 +111,10 @@ export default function SettingsModal({ onClose, status, setStatus }) {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             setPreviewImage(res.data.url);
+            toast.success("Image uploaded!");
         } catch (error) {
             console.error("Upload failed", error);
-            alert("Failed to upload image.");
+            toast.error("Failed to upload image.");
         } finally {
             setUploading(false);
         }
@@ -123,9 +125,10 @@ export default function SettingsModal({ onClose, status, setStatus }) {
         const result = await updateUser({ bio, avatar: previewImage, manualStats });
         setSaving(false);
         if (result.success) {
+            toast.success("Profile updated!");
             onClose();
         } else {
-            alert("Failed to update profile.");
+            toast.error("Failed to update profile.");
         }
     };
 

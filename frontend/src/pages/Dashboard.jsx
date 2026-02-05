@@ -63,7 +63,7 @@ export default function Dashboard() {
             });
             setShowLinkModal(false);
             setPlayerStats(res.data.stats); // Update stats directly
-            alert('Account Linked Successfully!');
+            toast.success('Account Linked Successfully!');
         } catch (err) {
             setLinkError(err.response?.data?.message || 'Failed to link account');
         }

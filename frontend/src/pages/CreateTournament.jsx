@@ -21,24 +21,24 @@ export default function CreateTournament() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                alert("You must be logged in to create a tournament.");
-                return;
-            }
+        const token = localStorage.getItem('token');
+        if (!token) {
+            toast.error("You must be logged in to create a tournament.");
+            return;
+        }
 
+        try {
             await axios.post('/api/tournaments', formData, {
                 headers: {
                     'x-auth-token': token
                 }
             });
 
-            alert("Tournament Created Successfully!");
-            navigate('/dashboard');
+            toast.success("Tournament Created Successfully!");
+            navigate('/tournaments');
         } catch (err) {
             console.error(err);
-            alert("Failed to create tournament: " + (err.response?.data?.message || err.message));
+            toast.error("Failed to create tournament: " + (err.response?.data?.message || err.message));
         }
     };
 

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { Send, Hash, Users, MessageSquare, Search, Bell, Settings, Menu, X, Volume2, ArrowLeft } from 'lucide-react';
 import UserPopover from '../components/UserPopover';
+import toast from 'react-hot-toast';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -120,9 +121,10 @@ export default function Chat() {
             socket.emit('send-message', messageData);
             setMessages((prev) => [...prev, messageData]);
 
+            // ... (in handleFileUpload catch block)
         } catch (err) {
             console.error("Upload failed", err);
-            alert("Failed to upload file");
+            toast.error("Failed to upload file");
         }
     };
 

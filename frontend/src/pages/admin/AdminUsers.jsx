@@ -32,9 +32,10 @@ const AdminUsers = () => {
         try {
             await axios.delete(`/api/admin/users/${id}`, config);
             setUsers(users.filter(user => user._id !== id));
+            toast.success("User deleted successfully");
         } catch (err) {
             console.error("Error deleting user:", err);
-            alert("Failed to delete user");
+            toast.error("Failed to delete user");
         }
     };
 
@@ -45,9 +46,10 @@ const AdminUsers = () => {
         try {
             const res = await axios.put(`/api/admin/users/${id}/role`, { role: newRole }, config);
             setUsers(users.map(user => user._id === id ? { ...user, role: res.data.role } : user));
+            toast.success(`Role updated to ${newRole}`);
         } catch (err) {
             console.error("Error updating role:", err);
-            alert("Failed to update role");
+            toast.error("Failed to update role");
         }
     };
 
