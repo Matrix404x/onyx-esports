@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useState, useEffect } from 'react';
 import { LayoutDashboard, Trophy, Users, MessageSquare, Mic, LogOut, Menu, X, Link as LinkIcon, Activity, Star, Shield } from 'lucide-react';
 import SpotlightCard from '../components/ui/SpotlightCard';
 
