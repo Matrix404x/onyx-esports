@@ -43,6 +43,7 @@ import seedAdmin from './src/seeders/adminSeeder.js';
 // ...
 
 import tournamentRoutes from './src/routes/tournamentRoutes.js';
+import teamRoutes from './src/routes/teamRoutes.js';
 import playerRoutes from './src/routes/playerRoutes.js';
 import chatRoutes from './src/routes/chatRoutes.js';
 import uploadRoutes from './src/routes/uploadRoutes.js';
