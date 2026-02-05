@@ -49,6 +49,7 @@ import chatRoutes from './src/routes/chatRoutes.js';
 import uploadRoutes from './src/routes/uploadRoutes.js';
 import adminRoutes from './src/routes/adminRoutes.js';
 import friendRoutes from './src/routes/friendRoutes.js';
+import paymentRoutes from './src/routes/paymentRoutes.js';
 import Message from './src/models/Message.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -68,6 +69,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/friends', friendRoutes);
+app.use('/api/payments', paymentRoutes);
 
 app.get('/', (req, res) => {
     res.send('Esports Platform API (Fresh Start)');
