@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { API_URL } from '../config';
+import toast from 'react-hot-toast';
 
 const socket = io(API_URL, { autoConnect: false });
 

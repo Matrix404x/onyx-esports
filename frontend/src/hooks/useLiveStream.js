@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { API_URL } from '../config';
+import toast from 'react-hot-toast';
 
 // Use a singleton socket connection if possible, or new one. 
 // For now, let's assume we reuse the one from useWebRTC or create a new one.
