@@ -8,6 +8,7 @@ import mongoose from 'mongoose';
 dotenv.config();
 
 const app = express();
+app.set('trust proxy', 1); // Trust Render/Vercel proxy for HTTPS
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
