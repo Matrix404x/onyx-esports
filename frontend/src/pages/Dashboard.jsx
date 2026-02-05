@@ -92,8 +92,12 @@ export default function Dashboard() {
 
                 <div className="absolute bottom-0 w-full p-4 border-t border-slate-800">
                     <div onClick={() => window.location.href = '/profile'} className="flex items-center gap-3 mb-4 cursor-pointer hover:bg-slate-800 p-2 rounded-lg transition-colors">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center font-bold">
-                            {user?.username?.[0] || 'U'}
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center font-bold overflow-hidden border border-slate-700">
+                            {user?.avatar ? (
+                                <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                            ) : (
+                                user?.username?.[0] || 'U'
+                            )}
                         </div>
                         <div>
                             <p className="font-medium text-sm">{user?.username || 'Gamer'}</p>

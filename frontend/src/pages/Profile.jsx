@@ -29,8 +29,8 @@ export default function Profile() {
                 const token = localStorage.getItem('token');
                 if (!token) return;
 
-                const res = await axios.get(`${API_URL}/api/player/stats`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                const res = await axios.get('/api/player/stats', {
+                    headers: { 'x-auth-token': token }
                 });
 
                 setStats({
@@ -43,7 +43,7 @@ export default function Profile() {
                 setLoading(false);
             } catch (err) {
                 console.error("Failed to fetch stats:", err);
-                setError("Failed to load statistics. Please make sure your Riot account is linked.");
+                setError(err.response?.data?.message || "Failed to load statistics. Please make sure your Riot account is linked.");
                 setLoading(false);
             }
         };
