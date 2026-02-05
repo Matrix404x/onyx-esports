@@ -104,21 +104,40 @@ export default function LiveStream({ tournamentId, isOrganizer }) {
 
             {/* Video Player */}
             {(stream || status === 'live' || status === 'watching') && (
-                <div className="relative aspect-video bg-black rounded-xl overflow-hidden border border-slate-800 shadow-2xl">
+                <div className="relative aspect-video bg-black rounded-xl overflow-hidden border border-slate-800 shadow-2xl group">
                     <video
                         ref={videoRef}
                         autoPlay
                         playsInline
-                        muted={isOrganizer} // Mute self to avoid loop
+                        muted={isOrganizer || isViewerMuted}
                         className="w-full h-full object-contain"
                     />
 
                     {/* Overlay Badges */}
-                    <div className="absolute top-4 left-4 flex gap-2">
+                    <div className="absolute top-4 left-4 flex gap-2 z-10">
                         <div className="px-3 py-1 bg-red-600 text-white text-xs font-bold uppercase rounded-md flex items-center gap-1">
                             <span className="w-2 h-2 bg-white rounded-full animate-pulse" /> Live
                         </div>
                     </div>
+
+                    {/* Unmute Overlay for Viewers */}
+                    {!isOrganizer && isViewerMuted && (
+                        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity group-hover:bg-black/20">
+                            <button
+                                onClick={() => {
+                                    if (videoRef.current) {
+                                        videoRef.current.muted = false;
+                                        setIsViewerMuted(false);
+                                        // Attempt to play just in case
+                                        videoRef.current.play().catch(console.error);
+                                    }
+                                }}
+                                className="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/30 backdrop-blur-md rounded-full text-white font-bold flex items-center gap-3 transition-all transform hover:scale-105 shadow-xl"
+                            >
+                                <VolumeX className="text-red-400" /> Click to Unmute
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
 

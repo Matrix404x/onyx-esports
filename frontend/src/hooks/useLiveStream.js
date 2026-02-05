@@ -251,9 +251,26 @@ export default function useLiveStream(tournamentId, isHost, user) {
 
         if (!isHost) {
             peer.ontrack = (e) => {
-                console.log("Received remote track");
-                setStream(e.streams[0]);
-                setStatus('watching');
+                console.log("Received remote track:", e.track.kind);
+
+                // If this is an audio track, notify user
+                if (e.track.kind === 'audio') {
+                    toast.success("Audio Connected! 🔊", { id: 'audio-connected' });
+                }
+
+                // Important: Use the stream that wraps these tracks
+                const remoteStream = e.streams[0];
+
+                if (remoteStream) {
+                    setStream(remoteStream);
+                    setStatus('watching');
+
+                    // Force update of tracks if they arrive late
+                    remoteStream.onaddtrack = (evt) => {
+                        console.log("Track added later:", evt.track.kind);
+                        setStream(new MediaStream(remoteStream.getTracks())); // Force new reference
+                    };
+                }
             };
         }
 
