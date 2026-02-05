@@ -20,8 +20,8 @@ export default function FriendsListSidebar({ className = "" }) {
         try {
             setLoading(true);
             const [friendsRes, requestsRes] = await Promise.all([
-                axios.get('/api/friends/list'),
-                axios.get('/api/friends/requests')
+                axios.get('/api/friends/list', { headers: { 'x-auth-token': localStorage.getItem('token') } }),
+                axios.get('/api/friends/requests', { headers: { 'x-auth-token': localStorage.getItem('token') } })
             ]);
             setFriends(friendsRes.data);
             setRequests(requestsRes.data);
@@ -34,7 +34,9 @@ export default function FriendsListSidebar({ className = "" }) {
 
     const handleAccept = async (requestId) => {
         try {
-            await axios.put(`/api/friends/accept/${requestId}`);
+            await axios.put(`/api/friends/accept/${requestId}`, {}, {
+                headers: { 'x-auth-token': localStorage.getItem('token') }
+            });
             fetchData(); // Refresh both lists
         } catch (err) {
             alert(err.response?.data?.message || "Failed to accept");
@@ -43,7 +45,9 @@ export default function FriendsListSidebar({ className = "" }) {
 
     const handleReject = async (requestId) => {
         try {
-            await axios.put(`/api/friends/reject/${requestId}`);
+            await axios.put(`/api/friends/reject/${requestId}`, {}, {
+                headers: { 'x-auth-token': localStorage.getItem('token') }
+            });
             fetchData(); // Refresh list
         } catch (err) {
             alert(err.response?.data?.message || "Failed to reject");
@@ -62,8 +66,8 @@ export default function FriendsListSidebar({ className = "" }) {
                     <button
                         onClick={() => setActiveTab('friends')}
                         className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all ${activeTab === 'friends'
-                                ? 'bg-slate-700 text-white shadow'
-                                : 'text-slate-400 hover:text-slate-200'
+                            ? 'bg-slate-700 text-white shadow'
+                            : 'text-slate-400 hover:text-slate-200'
                             }`}
                     >
                         Friends ({friends.length})
@@ -71,8 +75,8 @@ export default function FriendsListSidebar({ className = "" }) {
                     <button
                         onClick={() => setActiveTab('requests')}
                         className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all flex items-center justify-center gap-2 ${activeTab === 'requests'
-                                ? 'bg-slate-700 text-white shadow'
-                                : 'text-slate-400 hover:text-slate-200'
+                            ? 'bg-slate-700 text-white shadow'
+                            : 'text-slate-400 hover:text-slate-200'
                             }`}
                     >
                         Requests
