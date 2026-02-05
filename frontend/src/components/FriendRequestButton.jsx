@@ -28,7 +28,7 @@ export default function FriendRequestButton({ targetUserId }) {
         // For now, let's implement the basic actions assuming we know the status or default to 'none'.
         // Let's fetch the friends list to check if friend.
 
-        if (user.friends.includes(targetUserId)) {
+        if (user.friends?.includes(targetUserId)) {
             setStatus('friend');
             setLoading(false);
             return;
