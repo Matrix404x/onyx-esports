@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trophy, Calendar, DollarSign, Users, Gamepad2, Image as ImageIcon } from 'lucide-react';
+import toast from 'react-hot-toast';
 import axios from 'axios';
 
 export default function CreateTournament() {
