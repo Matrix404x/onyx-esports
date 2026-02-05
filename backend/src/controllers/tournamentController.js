@@ -43,7 +43,26 @@ export const getTournamentById = async (req, res) => {
         console.error(err.message);
         res.status(500).send('Server Error');
     }
-}
+};
+
+export const deleteTournament = async (req, res) => {
+    try {
+        let tournament = await Tournament.findById(req.params.id);
+
+        if (!tournament) return res.status(404).json({ message: 'Tournament not found' });
+
+        // Check Permissions: Admin OR Organizer
+        if (tournament.organizer.toString() !== req.user.id && req.user.role !== 'admin') {
+            return res.status(401).json({ message: 'Not authorized to delete this tournament' });
+        }
+
+        await tournament.deleteOne();
+        res.json({ message: 'Tournament removed' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
 
 export const joinTournament = async (req, res) => {
     try {

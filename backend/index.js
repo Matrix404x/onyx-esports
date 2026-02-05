@@ -60,6 +60,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/tournaments', tournamentRoutes);
 app.use('/api/player', playerRoutes);
+app.use('/api/teams', teamRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
