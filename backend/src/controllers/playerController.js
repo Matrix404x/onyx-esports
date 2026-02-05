@@ -213,3 +213,48 @@ export const getMyStats = async (req, res) => {
         res.status(500).json({ message: "Failed to fetch stats" });
     }
 };
+
+// Get User Profile by ID (Public)
+export const getUserProfile = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const user = await User.findById(userId).select('-password -email'); // Exclude private info
+
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Basic payload with Manual Stats default
+        let profile = {
+            _id: user._id,
+            username: user.username,
+            avatar: user.avatar,
+            bio: user.bio,
+            tagLine: user.tagLine,
+            summonerName: user.summonerName,
+            role: user.manualStats?.role || 'Flex',
+            main: user.manualStats?.main || 'Fill',
+            rank: user.manualStats?.rank || "Unranked",
+            matchesPlayed: 0,
+            tournamentsWon: 0,
+            winRate: 'N/A',
+            matchHistory: [],
+            isManual: true
+        };
+
+        // If they have Riot Linked, try to fetch/use Riot stats (Cached or Live)
+        // For public profile, fetching Live Riot stats every view is expensive/slow.
+        // Ideally we should cache this on the User model or use a separate Stats model.
+        // For MVP, we will try to fetch if we have keys, otherwise return Manual/Basic.
+
+        // TODO: Implement Caching. For now, just return User object data + basic stats.
+        // We won't fetch live Riot data here to prevent rate limits/slow loading on social browsing.
+        // We rely on the user to "Update" their own stats which saves to DB (if we implemented that).
+        // Current `getMyStats` fetches live. 
+        // Let's just return what we have in DB (Manual) or empty for now.
+
+        res.json(profile);
+
+    } catch (err) {
+        console.error("Get User Profile Error:", err.message);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
