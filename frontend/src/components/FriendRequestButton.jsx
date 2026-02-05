@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { UserPlus, UserCheck, Clock, X } from 'lucide-react';
+import { UserPlus, UserCheck, Clock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 
 export default function FriendRequestButton({ targetUserId }) {
     const { user } = useAuth();
@@ -14,35 +15,11 @@ export default function FriendRequestButton({ targetUserId }) {
     }, [user, targetUserId]);
 
     const checkStatus = () => {
-        // We can determine status by checking our own user object if it's up to date, 
-        // or passing status as prop. But for now let's assume we need to derive it.
-        // If we want real-time accuracy we might valid against checking the target user 
-        // OR rely on our 'user' context being refreshed.
-
-        // Simpler approach: Check our friends list and sent requests?
-        // But we don't store "sent requests" easily on frontend unless we fetch them into context.
-        // Let's rely on Props or just fetch specific status if needed. 
-        // Actually, easiest is to just try to add and handle error, or fetch user details.
-
-        // BETTER: When visiting a profile, the profiles data usually contains if they are friend.
-        // For now, let's implement the basic actions assuming we know the status or default to 'none'.
-        // Let's fetch the friends list to check if friend.
-
         if (user.friends?.includes(targetUserId)) {
             setStatus('friend');
             setLoading(false);
             return;
         }
-
-        // Check if we sent a request (requires fetching our sent requests? or checking target user?)
-        // The backend `User` model stores received requests. 
-        // So to know if I sent a request, I'd need to check the target user's requests.
-        // This is a bit tricky without a specific "check-friendship" endpoint.
-
-        // Let's add a "check status" logic here? Or just assume 'none' and let backend validation handle it.
-        // For better UX, let's fetch 'friends' from API to be sure.
-
-        // Temporary: just set loading false
         setLoading(false);
     };
 
@@ -53,18 +30,15 @@ export default function FriendRequestButton({ targetUserId }) {
                 headers: { 'x-auth-token': localStorage.getItem('token') }
             });
             setStatus('pending');
-            alert('Friend request sent!');
+            toast.success('Friend request sent!');
         } catch (err) {
-            alert(err.response?.data?.message || 'Failed to send request');
+            toast.error(err.response?.data?.message || 'Failed to send request');
         } finally {
             setLoading(false);
         }
     };
 
     if (!user || user._id === targetUserId) return null;
-
-    // Helper to verify status via API if needed, but for now we trust local or just show "Add"
-    // Ideally we pass "isFriend" prop.
 
     if (status === 'friend') {
         return (

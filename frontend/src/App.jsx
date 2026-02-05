@@ -9,6 +9,7 @@ import CreateTournament from './pages/CreateTournament';
 import Profile from './pages/Profile';
 import Tournaments from './pages/Tournaments';
 import Teams from './pages/Teams';
+import { Toaster } from 'react-hot-toast';
 import FindPlayers from './pages/FindPlayers';
 
 import Landing from './pages/Landing';
@@ -41,6 +42,13 @@ function App() {
           <Route path="tournaments" element={<AdminTournaments />} />
         </Route>
       </Routes>
+      <Toaster position="top-right" toastOptions={{
+        style: {
+          background: '#1e293b',
+          color: '#fff',
+          border: '1px solid #334155',
+        },
+      }} />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Users, UserPlus, X, Check, MessageSquare } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 
 export default function FriendsListSidebar({ className = "" }) {
     const { user } = useAuth();
@@ -38,8 +39,9 @@ export default function FriendsListSidebar({ className = "" }) {
                 headers: { 'x-auth-token': localStorage.getItem('token') }
             });
             fetchData(); // Refresh both lists
+            toast.success('Friend request accepted');
         } catch (err) {
-            alert(err.response?.data?.message || "Failed to accept");
+            toast.error(err.response?.data?.message || "Failed to accept");
         }
     };
 
@@ -49,8 +51,9 @@ export default function FriendsListSidebar({ className = "" }) {
                 headers: { 'x-auth-token': localStorage.getItem('token') }
             });
             fetchData(); // Refresh list
+            toast.success('Friend request rejected');
         } catch (err) {
-            alert(err.response?.data?.message || "Failed to reject");
+            toast.error(err.response?.data?.message || "Failed to reject");
         }
     };
 
