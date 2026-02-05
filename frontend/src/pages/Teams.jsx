@@ -30,27 +30,7 @@ export default function Teams() {
         setTeams([...teams, newTeam]);
     };
 
-    // ... existing handleDeleteTeam ...
 
-    // In render map:
-    // ...
-    <button
-        onClick={() => setSelectedTeam(team)}
-        className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
-    >
-        View Roster →
-    </button>
-
-    const fetchTeams = async () => {
-        try {
-            const res = await axios.get('/api/teams');
-            setTeams(res.data);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     useEffect(() => {
         fetchTeams();
@@ -136,7 +116,10 @@ export default function Teams() {
 
                                 <div className="mt-auto pt-4 border-t border-slate-800 flex items-center justify-between text-sm text-slate-400">
                                     <span>{team.members?.length || 0} Members</span>
-                                    <button className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors">
+                                    <button
+                                        onClick={() => setSelectedTeam(team)}
+                                        className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+                                    >
                                         View Roster →
                                     </button>
                                 </div>
@@ -146,32 +129,31 @@ export default function Teams() {
                 )}
             </div>
 
-                )}
-        </div>
 
-            {/* Create Modal */ }
-    {
-        showCreateModal && (
-            <CreateTeamModal
-                onClose={() => setShowCreateModal(false)}
-                onTeamCreated={(newTeam) => setTeams([...teams, newTeam])}
-            />
-        )
-    }
 
-    {/* Team Details / Roster Modal */ }
-    {
-        selectedTeam && (
-            <TeamDetailsModal
-                team={selectedTeam}
-                onClose={() => setSelectedTeam(null)}
-                onUpdate={(updatedTeam) => {
-                    setTeams(teams.map(t => t._id === updatedTeam._id ? updatedTeam : t));
-                    setSelectedTeam(updatedTeam);
-                }}
-            />
-        )
-    }
+            {/* Create Modal */}
+            {
+                showCreateModal && (
+                    <CreateTeamModal
+                        onClose={() => setShowCreateModal(false)}
+                        onTeamCreated={handleCreateTeam}
+                    />
+                )
+            }
+
+            {/* Team Details / Roster Modal */}
+            {
+                selectedTeam && (
+                    <TeamDetailsModal
+                        team={selectedTeam}
+                        onClose={() => setSelectedTeam(null)}
+                        onUpdate={(updatedTeam) => {
+                            setTeams(teams.map(t => t._id === updatedTeam._id ? updatedTeam : t));
+                            setSelectedTeam(updatedTeam);
+                        }}
+                    />
+                )
+            }
         </div >
     );
 }
