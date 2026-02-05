@@ -2,6 +2,9 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Trophy, Users, MessageSquare, Mic, ArrowRight, Gamepad2, Zap } from 'lucide-react';
+import AnimatedBackground from '../components/ui/AnimatedBackground';
+import BlurInText from '../components/ui/BlurInText';
+import SpotlightCard from '../components/ui/SpotlightCard';
 
 export default function Landing() {
     const navigate = useNavigate();
@@ -22,7 +25,9 @@ export default function Landing() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-cyan-500/30">
+        <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-cyan-500/30 relative">
+            <AnimatedBackground />
+
             {/* Navbar */}
             <nav className="fixed w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/5">
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -50,10 +55,9 @@ export default function Landing() {
 
             {/* Hero Section */}
             <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-cyan-500/20 rounded-full blur-[120px] -z-10 opacity-50" />
-                <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-[100px] -z-10" />
+                {/* Removed static blobs in favor of AnimatedBackground */}
 
-                <div className="max-w-7xl mx-auto px-6 text-center">
+                <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
                     <motion.div
                         initial="hidden"
                         animate="visible"
@@ -64,12 +68,13 @@ export default function Landing() {
                             <span>The Next Gen Esports Platform</span>
                         </motion.div>
 
-                        <motion.h1 variants={fadeInUp} className="text-5xl lg:text-8xl font-black mb-8 leading-tight tracking-tight">
-                            Dominate the <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 animate-gradient-x">
-                                Competition
-                            </span>
-                        </motion.h1>
+                        <div className="mb-8">
+                            <BlurInText
+                                text="Dominate the Competition"
+                                className="text-5xl lg:text-8xl font-black leading-tight tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400"
+                            />
+                        </div>
+
 
                         <motion.p variants={fadeInUp} className="text-xl text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed">
                             Join elite tournaments, build your dream team, and rise through the ranks.
@@ -172,13 +177,14 @@ function FeatureCard({ icon, title, desc, delay }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay }}
-            className="p-6 bg-slate-950 border border-slate-800 rounded-2xl hover:border-cyan-500/30 hover:bg-slate-900/80 transition-all group"
         >
-            <div className="mb-4 p-3 bg-slate-900 rounded-xl w-fit group-hover:scale-110 transition-transform">
-                {icon}
-            </div>
-            <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
-            <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
+            <SpotlightCard className="h-full p-6 bg-slate-950 border border-slate-800 rounded-2xl hover:border-cyan-500/30 transition-all group">
+                <div className="mb-4 p-3 bg-slate-900 rounded-xl w-fit group-hover:scale-110 transition-transform">
+                    {icon}
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
+                <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
+            </SpotlightCard>
         </motion.div>
     );
 }

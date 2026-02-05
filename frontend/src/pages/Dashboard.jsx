@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { LayoutDashboard, Trophy, Users, MessageSquare, Mic, LogOut, Menu, X, Link as LinkIcon, Activity, Star, Shield } from 'lucide-react';
+import SpotlightCard from '../components/ui/SpotlightCard';
 
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -139,7 +141,7 @@ export default function Dashboard() {
                         ) : playerStats ? (
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 {/* Profile Card */}
-                                <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex items-center gap-4">
+                                <SpotlightCard className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex items-center gap-4">
                                     <div className="relative">
                                         {/* Avatar Logic */}
                                         <img
@@ -166,10 +168,10 @@ export default function Dashboard() {
                                                 : (playerStats.region || 'NA')
                                         }</p>
                                     </div>
-                                </div>
+                                </SpotlightCard>
 
                                 {/* Rank Card */}
-                                <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl">
+                                <SpotlightCard className="bg-slate-900 border border-slate-800 p-6 rounded-xl">
                                     <h4 className="text-slate-400 text-sm mb-2 uppercase tracking-wider font-semibold">Ranked</h4>
                                     {playerStats.leagues ? (
                                         /* LoL Stats */
@@ -221,10 +223,10 @@ export default function Dashboard() {
                                             )}
                                         </div>
                                     )}
-                                </div>
+                                </SpotlightCard>
 
                                 {/* Win Rate Card */}
-                                <div className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex flex-col justify-center items-center text-center">
+                                <SpotlightCard className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex flex-col justify-center items-center text-center">
                                     <Star className="text-yellow-500 mb-2" size={24} />
                                     <p className="text-slate-400 text-sm">Win Rate</p>
                                     <p className="text-xl font-bold">
@@ -236,15 +238,15 @@ export default function Dashboard() {
                                                 : 'N/A'
                                         }
                                     </p>
-                                </div>
+                                </SpotlightCard>
                             </div>
                         ) : (
-                            <div className="bg-slate-900/50 border border-dashed border-slate-800 p-8 rounded-xl text-center">
+                            <SpotlightCard className="bg-slate-900/50 border border-dashed border-slate-800 p-8 rounded-xl text-center">
                                 <p className="text-slate-400 mb-4">Link your Riot Games account to see your stats here.</p>
                                 <button onClick={() => setShowLinkModal(true)} className="px-6 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-lg font-medium transition-all shadow-lg shadow-cyan-900/20">
                                     Connect Account
                                 </button>
-                            </div>
+                            </SpotlightCard>
                         )}
                     </div>
 
