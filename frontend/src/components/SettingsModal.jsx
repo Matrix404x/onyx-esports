@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Camera, Save, Mic, Volume2 } from 'lucide-react';
+import { X, Camera, Save, Mic, Volume2, Upload, Loader } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
