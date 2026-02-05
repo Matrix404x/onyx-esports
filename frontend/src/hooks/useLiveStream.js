@@ -75,6 +75,7 @@ export default function useLiveStream(tournamentId, isHost, user) {
                     sampleRate: 44100
                 }
             });
+            screenStreamRef.current = screenStream; // Store ref for toggling/cleanup
 
             // CHECK: Did we actually get an audio track?
             if (screenStream.getAudioTracks().length === 0) {
@@ -101,6 +102,9 @@ export default function useLiveStream(tournamentId, isHost, user) {
                 });
             } catch (micErr) {
                 console.warn("Microphone access denied or not available", micErr);
+            }
+            if (micStream) {
+                micStreamRef.current = micStream; // Store ref for toggling/cleanup
             }
 
             // 3. Mix Audio Sources
@@ -165,6 +169,18 @@ export default function useLiveStream(tournamentId, isHost, user) {
         if (localStreamRef.current) {
             localStreamRef.current.getTracks().forEach(track => track.stop());
             localStreamRef.current = null;
+        }
+
+        // Stop Screen Stream Source
+        if (screenStreamRef.current) {
+            screenStreamRef.current.getTracks().forEach(track => track.stop());
+            screenStreamRef.current = null;
+        }
+
+        // Stop Mic Stream Source
+        if (micStreamRef.current) {
+            micStreamRef.current.getTracks().forEach(track => track.stop());
+            micStreamRef.current = null;
         }
 
         // Clean up Audio Context
