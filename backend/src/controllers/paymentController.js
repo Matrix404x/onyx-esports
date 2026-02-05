@@ -3,10 +3,15 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
 
 export const createPaymentIntent = async (req, res) => {
     try {
+        if (!stripe) {
+            console.error("Stripe Secret Key is missing.");
+            return res.status(500).json({ message: "Payment gateway not configured correctly." });
+        }
+
         const { amount, currency = 'inr' } = req.body;
 
         if (!amount) {
