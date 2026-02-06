@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Users, UserPlus, X, Check, MessageSquare } from 'lucide-react';
+import { Users, UserPlus, X, Check, MessageSquare, MoreVertical, UserX, Ban } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import PrivateChatWindow from './PrivateChatWindow';
@@ -61,6 +61,34 @@ export default function FriendsListSidebar({ className = "" }) {
         }
     };
 
+    const [activeDropdown, setActiveDropdown] = useState(null);
+
+    const handleUnfriend = async (friendId) => {
+        try {
+            await axios.delete(`/api/friends/remove/${friendId}`, {
+                headers: { 'x-auth-token': localStorage.getItem('token') }
+            });
+            fetchData();
+            setActiveDropdown(null);
+            toast.success('Unfriended successfully');
+        } catch (err) {
+            toast.error("Failed to unfriend");
+        }
+    };
+
+    const handleBlock = async (friendId) => {
+        try {
+            await axios.post(`/api/friends/block/${friendId}`, {}, {
+                headers: { 'x-auth-token': localStorage.getItem('token') }
+            });
+            fetchData();
+            setActiveDropdown(null);
+            toast.success('User blocked');
+        } catch (err) {
+            toast.error("Failed to block user");
+        }
+    };
+
     if (!user) return null;
 
     return (
@@ -118,7 +146,7 @@ export default function FriendsListSidebar({ className = "" }) {
                             </div>
                         ) : (
                             friends.map(friend => (
-                                <div key={friend._id} className="flex items-center gap-3 p-2 hover:bg-slate-800/50 rounded-lg transition-colors group">
+                                <div key={friend._id} className="relative flex items-center gap-3 p-2 hover:bg-slate-800/50 rounded-lg transition-colors group">
                                     <div className="relative">
                                         <img
                                             src={friend.avatar || `https://ui-avatars.com/api/?name=${friend.username}&background=0D8ABC&color=fff`}
@@ -127,16 +155,45 @@ export default function FriendsListSidebar({ className = "" }) {
                                         />
                                         <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-slate-900 rounded-full" title="Online" />
                                     </div>
-                                    <div className="flex-1 min-w-0">
+                                    <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setActiveChatFriend(friend)}>
                                         <p className="font-medium text-slate-200 truncate">{friend.username}</p>
                                         <p className="text-xs text-slate-500 truncate">{friend.tagLine || 'Playing Valorant'}</p>
                                     </div>
-                                    <button
-                                        onClick={() => setActiveChatFriend(friend)}
-                                        className="text-slate-500 hover:text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity p-2"
-                                    >
-                                        <MessageSquare size={16} />
-                                    </button>
+
+                                    <div className="flex items-center">
+                                        <button
+                                            onClick={() => setActiveChatFriend(friend)}
+                                            className="text-slate-500 hover:text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity p-2"
+                                            title="Message"
+                                        >
+                                            <MessageSquare size={16} />
+                                        </button>
+                                        <button
+                                            onClick={() => setActiveDropdown(activeDropdown === friend._id ? null : friend._id)}
+                                            className="text-slate-500 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity p-2"
+                                            title="More options"
+                                        >
+                                            <MoreVertical size={16} />
+                                        </button>
+                                    </div>
+
+                                    {/* Dropdown Menu */}
+                                    {activeDropdown === friend._id && (
+                                        <div className="absolute right-0 top-12 w-32 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50 overflow-hidden">
+                                            <button
+                                                onClick={() => handleUnfriend(friend._id)}
+                                                className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2"
+                                            >
+                                                <UserX size={14} /> Unfriend
+                                            </button>
+                                            <button
+                                                onClick={() => handleBlock(friend._id)}
+                                                className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300 flex items-center gap-2"
+                                            >
+                                                <Ban size={14} /> Block
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             ))
                         )}

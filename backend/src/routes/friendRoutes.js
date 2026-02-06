@@ -5,7 +5,9 @@ import {
     acceptFriendRequest,
     rejectFriendRequest,
     getFriendRequests,
-    getFriendsList
+    getFriendsList,
+    removeFriend,
+    blockUser
 } from '../controllers/friendController.js';
 
 const router = express.Router();
@@ -32,5 +34,13 @@ router.get('/requests', getFriendRequests);
 // @route   GET api/friends/list
 // @desc    Get friends list
 router.get('/list', getFriendsList);
+
+// @route   DELETE api/friends/remove/:friendId
+// @desc    Remove a friend
+router.delete('/remove/:friendId', removeFriend);
+
+// @route   POST api/friends/block/:userId
+// @desc    Block a user
+router.post('/block/:userId', blockUser);
 
 export default router;

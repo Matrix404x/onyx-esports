@@ -31,8 +31,7 @@ export const sendFriendRequest = async (req, res) => {
             return res.status(400).json({ message: "Friend request already sent" });
         }
 
-        // Check if they sent YOU a request (if so, maybe auto-accept? or just allow sending back to create match? standard is blocked usually or specific logic. For now simpler: push request)
-        // Actually, if they sent you a request, you should accept it instead. But let's keep it simple: push request.
+        .
 
         recipient.friendRequests.push({ sender: senderId, status: 'pending' });
         await recipient.save();
@@ -79,10 +78,7 @@ export const acceptFriendRequest = async (req, res) => {
             await sender.save();
         }
 
-        // Remove the request from the array (or keep as log? usually remove or filter)
-        // Let's keep it but marked accepted, or remove. Usually better to remove to keep doc size small.
-        // The detailed plan said "status enum", so maybe we keep it. But for friends list, we use `friends` array.
-        // To clean up, let's remove the request from the array after acceptance to save space, relies on `friends` array for truth.
+       
         request.deleteOne();
 
         await user.save();
@@ -140,6 +136,74 @@ export const getFriendsList = async (req, res) => {
     try {
         const user = await User.findById(req.user.id).populate('friends', 'username avatar tagLine bio');
         res.json(user.friends);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+// Remove Friend
+export const removeFriend = async (req, res) => {
+    try {
+        const { friendId } = req.params;
+        const userId = req.user.id;
+
+        const user = await User.findById(userId);
+        const friend = await User.findById(friendId);
+
+        if (!user || !friend) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Remove from both friends lists
+        user.friends = user.friends.filter(id => id.toString() !== friendId);
+        friend.friends = friend.friends.filter(id => id.toString() !== userId);
+
+        await user.save();
+        await friend.save();
+
+        res.json({ message: "Friend removed successfully" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+// Block User
+export const blockUser = async (req, res) => {
+    try {
+        const { userId } = req.params; // ID of user to block
+        const currentUserId = req.user.id;
+
+        if (userId === currentUserId) {
+            return res.status(400).json({ message: "You cannot block yourself" });
+        }
+
+        const currentUser = await User.findById(currentUserId);
+        const userToBlock = await User.findById(userId);
+
+        if (!userToBlock) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Add to blocked list if not already there
+        if (!currentUser.blockedUsers.includes(userId)) {
+            currentUser.blockedUsers.push(userId);
+        }
+
+        // Remove from friends list if present
+        if (currentUser.friends.includes(userId)) {
+            currentUser.friends = currentUser.friends.filter(id => id.toString() !== userId);
+            userToBlock.friends = userToBlock.friends.filter(id => id.toString() !== currentUserId);
+            await userToBlock.save();
+        }
+
+        // Remove any pending friend requests from this user
+        currentUser.friendRequests = currentUser.friendRequests.filter(req => req.sender.toString() !== userId);
+
+        await currentUser.save();
+
+        res.json({ message: "User blocked successfully" });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Server Error" });
