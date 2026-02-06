@@ -262,13 +262,24 @@ export default function Dashboard() {
                         )}
                     </div>
 
-                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><Trophy className="text-yellow-500" /> Live Tournaments</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {tournaments.length === 0 ? (
-                            <div className="col-span-full text-center text-slate-500 py-10">No tournaments found. Create one!</div>
+                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><Trophy className="text-yellow-500" /> Live & Upcoming Tournaments</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                        {tournaments.filter(t => t.status !== 'completed').length === 0 ? (
+                            <div className="col-span-full text-center text-slate-500 py-10">No upcoming tournaments.</div>
                         ) : (
-                            tournaments.map(tournament => (
+                            tournaments.filter(t => t.status !== 'completed').map(tournament => (
                                 <TournamentCard key={tournament._id} data={tournament} />
+                            ))
+                        )}
+                    </div>
+
+                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-slate-400"><Trophy className="text-slate-500" /> Past Tournaments</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-75">
+                        {tournaments.filter(t => t.status === 'completed').length === 0 ? (
+                            <div className="col-span-full text-center text-slate-500 py-10">No past tournaments.</div>
+                        ) : (
+                            tournaments.filter(t => t.status === 'completed').map(tournament => (
+                                <TournamentCard key={tournament._id} data={tournament} isCompleted={true} />
                             ))
                         )}
                     </div>
@@ -384,7 +395,7 @@ function NavItem({ icon, label, active, onClick }) {
     );
 }
 
-function TournamentCard({ data }) {
+function TournamentCard({ data, isCompleted = false }) {
     const navigate = useNavigate();
 
     return (
@@ -408,8 +419,11 @@ function TournamentCard({ data }) {
                     <span>🏆 {data.prize}</span>
                 </div>
 
-                <button className="w-full py-2 bg-slate-800 hover:bg-cyan-600 text-white rounded-lg font-medium transition-colors border border-slate-700 hover:border-cyan-500">
-                    View Details
+                <button className={`w-full py-2 rounded-lg font-medium transition-colors border ${isCompleted
+                    ? 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed'
+                    : 'bg-slate-800 hover:bg-cyan-600 text-white border-slate-700 hover:border-cyan-500'
+                    }`}>
+                    {isCompleted ? 'Completed' : 'View Details'}
                 </button>
             </div>
         </div>

@@ -29,12 +29,24 @@ export default function Tournaments() {
                     <h1 className="text-3xl font-bold">All Tournaments</h1>
                 </header>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {tournaments.length === 0 ? (
-                        <div className="col-span-full text-center text-slate-500 py-10">No tournaments found.</div>
+                <h2 className="text-xl font-bold mb-6 text-cyan-400">Live & Upcoming</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                    {tournaments.filter(t => t.status !== 'completed').length === 0 ? (
+                        <div className="col-span-full text-center text-slate-500 py-10">No upcoming tournaments.</div>
                     ) : (
-                        tournaments.map(tournament => (
+                        tournaments.filter(t => t.status !== 'completed').map(tournament => (
                             <TournamentCard key={tournament._id} data={tournament} />
+                        ))
+                    )}
+                </div>
+
+                <h2 className="text-xl font-bold mb-6 text-slate-500">History</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-60">
+                    {tournaments.filter(t => t.status === 'completed').length === 0 ? (
+                        <div className="col-span-full text-center text-slate-500 py-10">No past tournaments.</div>
+                    ) : (
+                        tournaments.filter(t => t.status === 'completed').map(tournament => (
+                            <TournamentCard key={tournament._id} data={tournament} isCompleted={true} />
                         ))
                     )}
                 </div>
@@ -43,7 +55,7 @@ export default function Tournaments() {
     );
 }
 
-function TournamentCard({ data }) {
+function TournamentCard({ data, isCompleted = false }) {
     const navigate = useNavigate();
 
     return (
@@ -74,8 +86,11 @@ function TournamentCard({ data }) {
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <button className="flex-1 py-2 bg-slate-800 hover:bg-cyan-600 text-white rounded-lg font-medium transition-colors border border-slate-700 hover:border-cyan-500">
-                        View Details
+                    <button className={`flex-1 py-2 rounded-lg font-medium transition-colors border ${isCompleted
+                        ? 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed'
+                        : 'bg-slate-800 hover:bg-cyan-600 text-white border-slate-700 hover:border-cyan-500'
+                        }`}>
+                        {isCompleted ? 'Completed' : 'View Details'}
                     </button>
                     {data.entryFee === 0 && <span className="px-3 py-2 bg-green-500/10 text-green-400 border border-green-500/20 rounded-lg font-bold text-sm">Free</span>}
                 </div>
