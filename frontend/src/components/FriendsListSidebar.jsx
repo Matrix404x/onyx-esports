@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+
 import { Users, UserPlus, X, Check, MessageSquare, MoreVertical, UserX, Ban } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import PrivateChatWindow from './PrivateChatWindow';
+
+import { FriendApi } from '../api/allApi';
 
 export default function FriendsListSidebar({ className = "" }) {
     const { user } = useAuth();
@@ -25,8 +27,8 @@ export default function FriendsListSidebar({ className = "" }) {
         try {
             setLoading(true);
             const [friendsRes, requestsRes] = await Promise.all([
-                axios.get('/api/friends/list', { headers: { 'x-auth-token': localStorage.getItem('token') } }),
-                axios.get('/api/friends/requests', { headers: { 'x-auth-token': localStorage.getItem('token') } })
+                FriendApi.getList(),
+                FriendApi.getRequests()
             ]);
             setFriends(friendsRes.data);
             setRequests(requestsRes.data);
@@ -39,9 +41,7 @@ export default function FriendsListSidebar({ className = "" }) {
 
     const handleAccept = async (requestId) => {
         try {
-            await axios.put(`/api/friends/accept/${requestId}`, {}, {
-                headers: { 'x-auth-token': localStorage.getItem('token') }
-            });
+            await FriendApi.acceptRequest(requestId);
             fetchData(); // Refresh both lists
             toast.success('Friend request accepted');
         } catch (err) {
@@ -51,9 +51,7 @@ export default function FriendsListSidebar({ className = "" }) {
 
     const handleReject = async (requestId) => {
         try {
-            await axios.put(`/api/friends/reject/${requestId}`, {}, {
-                headers: { 'x-auth-token': localStorage.getItem('token') }
-            });
+            await FriendApi.rejectRequest(requestId);
             fetchData(); // Refresh list
             toast.success('Friend request rejected');
         } catch (err) {
@@ -65,9 +63,7 @@ export default function FriendsListSidebar({ className = "" }) {
 
     const handleUnfriend = async (friendId) => {
         try {
-            await axios.delete(`/api/friends/remove/${friendId}`, {
-                headers: { 'x-auth-token': localStorage.getItem('token') }
-            });
+            await FriendApi.removeFriend(friendId);
             fetchData();
             setActiveDropdown(null);
             toast.success('Unfriended successfully');
@@ -78,9 +74,7 @@ export default function FriendsListSidebar({ className = "" }) {
 
     const handleBlock = async (friendId) => {
         try {
-            await axios.post(`/api/friends/block/${friendId}`, {}, {
-                headers: { 'x-auth-token': localStorage.getItem('token') }
-            });
+            await FriendApi.blockUser(friendId);
             fetchData();
             setActiveDropdown(null);
             toast.success('User blocked');
