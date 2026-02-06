@@ -47,10 +47,11 @@ export default function Register() {
                         <label className="block text-sm font-medium text-slate-300 mb-1">Username</label>
                         <input
                             type="text"
+                            name="username"
                             className="w-full px-4 py-3 bg-slate-950/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 text-white placeholder-slate-500 outline-none transition-all"
                             placeholder="ProGamer123"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            value={formData.username}
+                            onChange={handleChange}
                         />
                     </div>
 
@@ -58,10 +59,11 @@ export default function Register() {
                         <label className="block text-sm font-medium text-slate-300 mb-1">Email Address</label>
                         <input
                             type="email"
+                            name="email"
                             className="w-full px-4 py-3 bg-slate-950/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 text-white placeholder-slate-500 outline-none transition-all"
                             placeholder="player@example.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={formData.email}
+                            onChange={handleChange}
                         />
                     </div>
 
@@ -69,10 +71,11 @@ export default function Register() {
                         <label className="block text-sm font-medium text-slate-300 mb-1">Password</label>
                         <input
                             type="password"
+                            name="password"
                             className="w-full px-4 py-3 bg-slate-950/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 text-white placeholder-slate-500 outline-none transition-all"
                             placeholder="••••••••"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            value={formData.password}
+                            onChange={handleChange}
                         />
                     </div>
 
