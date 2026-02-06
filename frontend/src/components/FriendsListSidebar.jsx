@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Users, UserPlus, X, Check, MessageSquare } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import PrivateChatWindow from './PrivateChatWindow';
 
 export default function FriendsListSidebar({ className = "" }) {
     const { user } = useAuth();
@@ -10,6 +11,9 @@ export default function FriendsListSidebar({ className = "" }) {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('friends'); // 'friends' or 'requests'
+
+    // Track which friend we are chatting with
+    const [activeChatFriend, setActiveChatFriend] = useState(null);
 
     useEffect(() => {
         if (user) {
@@ -127,7 +131,10 @@ export default function FriendsListSidebar({ className = "" }) {
                                         <p className="font-medium text-slate-200 truncate">{friend.username}</p>
                                         <p className="text-xs text-slate-500 truncate">{friend.tagLine || 'Playing Valorant'}</p>
                                     </div>
-                                    <button className="text-slate-500 hover:text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity p-2">
+                                    <button
+                                        onClick={() => setActiveChatFriend(friend)}
+                                        className="text-slate-500 hover:text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity p-2"
+                                    >
                                         <MessageSquare size={16} />
                                     </button>
                                 </div>
@@ -175,6 +182,15 @@ export default function FriendsListSidebar({ className = "" }) {
                     </div>
                 )}
             </div>
+
+            {/* Private Chat Window */}
+            {activeChatFriend && (
+                <PrivateChatWindow
+                    currentUser={user}
+                    recipient={activeChatFriend}
+                    onClose={() => setActiveChatFriend(null)}
+                />
+            )}
         </div>
     );
 }
