@@ -8,11 +8,11 @@ import mongoose from 'mongoose';
 dotenv.config();
 
 const app = express();
-app.set('trust proxy', 1); // Trust Render/Vercel proxy for HTTPS
+app.set('trust proxy', 1); 
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "*", // Allow all for dev
+        origin: "*", 
         methods: ["GET", "POST"]
     }
 });
@@ -27,12 +27,12 @@ const connectDB = async () => {
         await mongoose.connect(process.env.MONGO_URI);
         console.log('MongoDB Connected');
 
-        // Seed Admin
+   
         await seedAdmin();
 
     } catch (err) {
         console.error('MongoDB Connection Error:', err.message);
-        // process.exit(1); // Keep running even if DB fails for now
+        
     }
 };
 connectDB();
@@ -40,7 +40,7 @@ connectDB();
 import authRoutes from './src/routes/authRoutes.js';
 import seedAdmin from './src/seeders/adminSeeder.js';
 
-// ...
+
 
 import tournamentRoutes from './src/routes/tournamentRoutes.js';
 import teamRoutes from './src/routes/teamRoutes.js';

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Users, Plus, Trash2, Shield } from 'lucide-react';
-import { Link } from 'react-router-dom';
+
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -9,7 +9,7 @@ import CreateTeamModal from '../components/CreateTeamModal';
 import TeamDetailsModal from '../components/TeamDetailsModal';
 
 export default function Teams() {
-    const navigate = useNavigate();
+
     const { user } = useAuth();
     const [teams, setTeams] = useState([]);
     const [showCreateModal, setShowCreateModal] = useState(false);
