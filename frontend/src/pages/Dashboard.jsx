@@ -239,7 +239,7 @@ export default function Dashboard() {
 
                                 {/* Win Rate Card */}
                                 <SpotlightCard className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex flex-col justify-center items-center text-center">
-                                    <Star className="text-yellow-500 mb-2" size={24} />
+                                   
                                     <p className="text-slate-400 text-sm">Win Rate</p>
                                     <p className="text-xl font-bold">
                                         {/* LoL Calculation */}
