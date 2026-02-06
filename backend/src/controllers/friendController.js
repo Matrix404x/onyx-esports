@@ -31,7 +31,7 @@ export const sendFriendRequest = async (req, res) => {
             return res.status(400).json({ message: "Friend request already sent" });
         }
 
-        .
+
 
         recipient.friendRequests.push({ sender: senderId, status: 'pending' });
         await recipient.save();
@@ -78,7 +78,7 @@ export const acceptFriendRequest = async (req, res) => {
             await sender.save();
         }
 
-       
+
         request.deleteOne();
 
         await user.save();
