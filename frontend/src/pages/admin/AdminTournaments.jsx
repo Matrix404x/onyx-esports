@@ -61,7 +61,7 @@ const AdminTournaments = () => {
                                 <td className="p-4 font-medium text-white">{tournament.title}</td>
                                 <td className="p-4 uppercase text-slate-400">{tournament.game}</td>
                                 <td className="p-4">
-                                    {tournament.participants ? tournament.participants.length : 0} / {tournament.maxParticipants || '-'}
+                                    {tournament.participants ? tournament.participants.length : 0} / {tournament.maxTeams || '-'}
                                 </td>
                                 <td className="p-4">
                                     <span className={`px-2 py-1 rounded w-fit text-xs font-bold ${tournament.status === 'upcoming' ? 'bg-cyan-500/20 text-cyan-300' :
