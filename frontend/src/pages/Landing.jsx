@@ -2,7 +2,7 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Trophy, Users, MessageSquare, Mic, ArrowRight, Gamepad2, Zap } from 'lucide-react';
-import AnimatedBackground from '../components/ui/AnimatedBackground';
+import GridScan from '../components/GridScan';
 import BlurInText from '../components/ui/BlurInText';
 import SpotlightCard from '../components/ui/SpotlightCard';
 
@@ -26,7 +26,21 @@ export default function Landing() {
 
     return (
         <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-cyan-500/30 relative">
-            <AnimatedBackground />
+            {/* 3D Background */}
+            <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100vh', zIndex: 0 }}>
+                <GridScan
+                    sensitivity={0.55}
+                    lineThickness={1}
+                    linesColor="#392e4e"
+                    gridScale={0.1}
+                    scanColor="#FF9FFC"
+                    scanOpacity={0.4}
+                    enablePost
+                    bloomIntensity={0.6}
+                    chromaticAberration={0.002}
+                    noiseIntensity={0.01}
+                />
+            </div>
 
             {/* Navbar */}
             <nav className="fixed w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/5">
