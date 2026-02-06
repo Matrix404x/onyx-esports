@@ -56,7 +56,17 @@ export const updateUserRole = async (req, res) => {
 export const getAllTournaments = async (req, res) => {
     try {
         const tournaments = await Tournament.find().sort({ createdAt: -1 });
-        res.json(tournaments);
+
+        // Update status for tournaments that have passed
+        const updatedTournaments = await Promise.all(tournaments.map(async (t) => {
+            if (t.status === 'upcoming' && new Date(t.date) < new Date()) {
+                t.status = 'completed';
+                await t.save();
+            }
+            return t;
+        }));
+
+        res.json(updatedTournaments);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
