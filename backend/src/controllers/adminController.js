@@ -1,12 +1,28 @@
 import User from '../models/User.js';
 import Tournament from '../models/Tournament.js';
+import Team from '../models/Team.js';
 
 export const getSystemStats = async (req, res) => {
     try {
         const userCount = await User.countDocuments();
-        const tournamentCount = await Tournament.countDocuments();
-        // You can add more stats here (e.g. active matches, messages)
-        res.json({ userCount, tournamentCount });
+
+        // Detailed Tournament Stats
+        const tournaments = await Tournament.find();
+        const activeTournaments = tournaments.filter(t => t.status === 'ongoing').length;
+        const upcomingTournaments = tournaments.filter(t => t.status === 'upcoming').length;
+        const completedTournaments = tournaments.filter(t => t.status === 'completed').length;
+
+        // Team Stats
+        const teamCount = await Team.countDocuments();
+
+        res.json({
+            userCount,
+            tournamentCount: tournaments.length,
+            activeTournaments,
+            upcomingTournaments,
+            completedTournaments,
+            teamCount
+        });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
