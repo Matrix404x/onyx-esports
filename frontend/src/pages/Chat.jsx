@@ -3,12 +3,12 @@ import { io } from 'socket.io-client';
 import { Send, Hash, Users, MessageSquare, Search, Bell, Settings, Menu, X, Volume2, ArrowLeft } from 'lucide-react';
 import UserPopover from '../components/UserPopover';
 import toast from 'react-hot-toast';
-import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import VoicePanel from '../components/VoicePanel';
 import SettingsModal from '../components/SettingsModal';
 import { API_URL } from '../config';
+import { ChatApi, UploadApi } from '../api/allApi';
 
 const socket = io(API_URL, { autoConnect: false });
 
@@ -59,9 +59,7 @@ export default function Chat() {
     useEffect(() => {
         const fetchMessages = async () => {
             try {
-                const res = await axios.get(`/api/chat/${activeChannel}`, {
-                    headers: { 'x-auth-token': localStorage.getItem('token') }
-                });
+                const res = await ChatApi.getHistory(activeChannel);
                 setMessages(res.data);
             } catch (err) {
                 console.error("Error fetching chat history", err);
@@ -103,9 +101,7 @@ export default function Chat() {
         formData.append('file', file);
 
         try {
-            const res = await axios.post('/api/upload', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            const res = await UploadApi.uploadFile(formData);
 
             const messageData = {
                 roomId: activeChannel,
