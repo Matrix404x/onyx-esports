@@ -63,9 +63,9 @@ const getClusterRegion = (platformId) => {
     return map[platformId];
 };
 
-/* ===============================
-   1️⃣ Get Riot Account (PUUID)
-================================ */
+
+//    Get Riot Account (PUUID)
+
 export const getAccountByRiotId = async (
     gameName,
     tagLine,
