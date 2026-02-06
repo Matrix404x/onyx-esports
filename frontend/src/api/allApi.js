@@ -1,8 +1,9 @@
 import axios from 'axios';
+import { API_URL } from '../config';
 
 // Create a configured axios instance
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+    baseURL: API_URL,
     headers: {
         'Content-Type': 'application/json'
     }
@@ -31,9 +32,7 @@ api.interceptors.response.use(
     }
 );
 
-/* =========================================================================
-   API MODULES
-   ========================================================================= */
+
 
 export const AuthApi = {
     register: (data) => api.post('/api/auth/register', data),
