@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ArrowLeft, Search, UserPt } from 'lucide-react';
+import { ArrowLeft, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import SpotlightCard from '../components/ui/SpotlightCard';
 import FriendRequestButton from '../components/FriendRequestButton';
