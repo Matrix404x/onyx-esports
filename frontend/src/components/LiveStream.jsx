@@ -139,24 +139,7 @@ export default function LiveStream({ tournamentId, isOrganizer }) {
                         </div>
                     </div>
 
-                    {/* Unmute Overlay for Viewers */}
-                    {!isOrganizer && isViewerMuted && (
-                        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity group-hover:bg-black/20">
-                            <button
-                                onClick={() => {
-                                    if (videoRef.current) {
-                                        videoRef.current.muted = false;
-                                        setIsViewerMuted(false);
-                                        // Attempt to play just in case
-                                        videoRef.current.play().catch(console.error);
-                                    }
-                                }}
-                                className="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/30 backdrop-blur-md rounded-full text-white font-bold flex items-center gap-3 transition-all transform hover:scale-105 shadow-xl"
-                            >
-                                <VolumeX className="text-red-400" /> Click to Unmute
-                            </button>
-                        </div>
-                    )}
+                    {/* Unmute Overlay for Viewers - REMOVED */}
                 </div>
             )}
 
