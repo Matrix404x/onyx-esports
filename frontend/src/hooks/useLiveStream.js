@@ -12,6 +12,19 @@ export default function useLiveStream(tournamentId, isHost, user) {
     const [stream, setStream] = useState(null);
     const [status, setStatus] = useState('idle'); // idle, live, watching, ended
     const [viewerCount, setViewerCount] = useState(0);
+    // Debug State
+    const [debugInfo, setDebugInfo] = useState({
+        role: isHost ? 'Host' : 'Viewer',
+        audioTracks: 0,
+        videoTracks: 0,
+        peerConnectionState: 'new',
+        logs: []
+    });
+
+    const addLog = (msg) => {
+        console.log(msg); // Keep console log
+        setDebugInfo(prev => ({ ...prev, logs: [...prev.logs.slice(-4), msg] }));
+    };
 
     // Host Refs
     const localStreamRef = useRef(null);
@@ -109,24 +122,30 @@ export default function useLiveStream(tournamentId, isHost, user) {
 
             // 3. Mix Audio Sources
             const ac = new (window.AudioContext || window.webkitAudioContext)();
+            addLog(`AudioContext: ${ac.state}`);
             audioContextRef.current = ac;
             if (ac.state === 'suspended') {
                 await ac.resume();
+                addLog(`AudioContext Resumed: ${ac.state}`);
             }
             const dest = ac.createMediaStreamDestination();
             audioDestinationRef.current = dest;
 
             // Add Screen Audio to Mix
             if (screenStream.getAudioTracks().length > 0) {
+                addLog("Mixing: Added Screen Audio");
                 const screenSource = ac.createMediaStreamSource(screenStream);
                 const screenGain = ac.createGain();
                 screenGain.gain.value = 1; // Default Unmuted
                 screenSource.connect(screenGain).connect(dest);
                 screenGainNodeRef.current = screenGain;
+            } else {
+                addLog("Mixing: NO Screen Audio Found");
             }
 
             // Add Mic Audio to Mix
             if (micStream && micStream.getAudioTracks().length > 0) {
+                addLog("Mixing: Added Mic Audio");
                 const micSource = ac.createMediaStreamSource(micStream);
                 const micGain = ac.createGain();
                 micGain.gain.value = 1; // Default Unmuted
@@ -139,15 +158,25 @@ export default function useLiveStream(tournamentId, isHost, user) {
             // Add Video
             screenStream.getVideoTracks().forEach(track => mixedStream.addTrack(track));
             // Add Mixed Audio
-            if (dest.stream.getAudioTracks().length > 0) {
-                mixedStream.addTrack(dest.stream.getAudioTracks()[0]);
+            const mixedAudioTracks = dest.stream.getAudioTracks();
+            if (mixedAudioTracks.length > 0) {
+                addLog("Final: Added Mixed Audio");
+                mixedStream.addTrack(mixedAudioTracks[0]);
             } else if (screenStream.getAudioTracks().length > 0) {
                 // Fallback if mixing failed for some reason
+                addLog("Final: Fallback to Screen Audio");
                 mixedStream.addTrack(screenStream.getAudioTracks()[0]);
+            } else {
+                addLog("Final: NO AUDIO TRACKS!");
             }
 
             localStreamRef.current = mixedStream;
             setStream(mixedStream);
+            setDebugInfo(prev => ({
+                ...prev,
+                audioTracks: mixedStream.getAudioTracks().length,
+                videoTracks: mixedStream.getVideoTracks().length
+            }));
             setStatus('live');
 
             socket.emit('start-stream', tournamentId);
@@ -211,6 +240,7 @@ export default function useLiveStream(tournamentId, isHost, user) {
 
         // Add tracks
         localStreamRef.current.getTracks().forEach(track => {
+            console.log(`Adding track to peer ${viewerId}: kind=${track.kind}, enabled=${track.enabled}, muted=${track.muted}, id=${track.id}`);
             peer.addTrack(track, localStreamRef.current);
         });
 
@@ -251,10 +281,11 @@ export default function useLiveStream(tournamentId, isHost, user) {
 
         if (!isHost) {
             peer.ontrack = (e) => {
-                console.log("Received remote track:", e.track.kind);
+                const track = e.track;
+                addLog(`Rx Track: ${track.kind} (${track.id.slice(0, 4)}..)`);
 
                 // If this is an audio track, notify user
-                if (e.track.kind === 'audio') {
+                if (track.kind === 'audio') {
                     toast.success("Audio Connected! 🔊", { id: 'audio-connected' });
                 }
 
@@ -265,10 +296,21 @@ export default function useLiveStream(tournamentId, isHost, user) {
                     setStream(remoteStream);
                     setStatus('watching');
 
+                    setDebugInfo(prev => ({
+                        ...prev,
+                        audioTracks: remoteStream.getAudioTracks().length,
+                        videoTracks: remoteStream.getVideoTracks().length
+                    }));
+
                     // Force update of tracks if they arrive late
                     remoteStream.onaddtrack = (evt) => {
-                        console.log("Track added later:", evt.track.kind);
+                        addLog(`Rx Late Track: ${evt.track.kind}`);
                         setStream(new MediaStream(remoteStream.getTracks())); // Force new reference
+                        setDebugInfo(prev => ({
+                            ...prev,
+                            audioTracks: remoteStream.getAudioTracks().length + 1, // approx
+                            videoTracks: remoteStream.getVideoTracks().length
+                        }));
                     };
                 }
             };
@@ -367,6 +409,8 @@ export default function useLiveStream(tournamentId, isHost, user) {
         toggleSystemAudio,
         isVideoEnabled,
         isMicEnabled,
-        isSystemAudioEnabled
+        isSystemAudioEnabled,
+        debugInfo
     };
+};
 }
