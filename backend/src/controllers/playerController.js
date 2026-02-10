@@ -106,11 +106,10 @@ export const getMyStats = async (req, res) => {
                 const me = m.players?.all_players?.find(p => p.name.toLowerCase() === myName.toLowerCase() && p.tag.toLowerCase() === myTag.toLowerCase());
 
                 let isWin = false;
-                // Sometimes metadata has it
                 if (me) {
-                    const myTeam = me.team; // 'Red' or 'Blue'
-                    const winningTeam = m.metadata?.winning_team; // 'Red' or 'Blue'
-                    isWin = (myTeam === winningTeam);
+                    const teamKey = me.team.toLowerCase(); // 'red' or 'blue'
+                    // Henrik V3 structure: match.teams.red.has_won (boolean)
+                    isWin = m.teams?.[teamKey]?.has_won || false;
                 }
 
                 if (isWin) wins++;
