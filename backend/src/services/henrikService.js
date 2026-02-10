@@ -97,7 +97,7 @@ export const getHenrikStats = async (gameName, tagLine, platformId) => {
                 gameName: account.name,
                 tagLine: account.tag,
                 puuid: account.puuid,
-                card: account.card?.large, // Player card image
+                card: account.card, // Player card image object { small, large, wide, id }
                 accountLevel: account.account_level
             },
             ranked: mmr ? {
