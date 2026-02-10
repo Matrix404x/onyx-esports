@@ -1,4 +1,10 @@
 import { useState, useEffect, Suspense, lazy } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Calendar, Trophy, Users, Shield, Share2 } from 'lucide-react';
+import toast from 'react-hot-toast';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
+
 // Lazy load PaymentModal to prevent Stripe API from loading immediately
 const PaymentModal = lazy(() => import('../components/PaymentModal'));
 import LiveStream from '../components/LiveStream';
