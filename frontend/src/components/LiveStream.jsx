@@ -138,8 +138,6 @@ export default function LiveStream({ tournamentId, isOrganizer }) {
                             <span className="w-2 h-2 bg-white rounded-full animate-pulse" /> Live
                         </div>
                     </div>
-
-                    {/* Unmute Overlay for Viewers - REMOVED */}
                 </div>
             )}
 

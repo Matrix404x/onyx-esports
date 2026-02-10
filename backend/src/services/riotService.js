@@ -23,7 +23,7 @@ const getApiKey = () => {
     // Fallback if env is missing or clearly the old one (simple check)
     if (!key || key.startsWith("RGAPI-95564")) {
         console.warn("WARNING: RIOT_API_KEY missing or old in process.env. Using hardcoded fallback.");
-        key = "RGAPI-90019993-0068-4387-887d-b8498240d6df";
+        key = "RGAPI-c533df48-9a59-4261-90ad-a2db9609afa7";
     }
     const finalKey = key.trim();
     console.log(`[RiotAPI] Using Key: ${finalKey.substring(0, 10)}...`);
@@ -236,10 +236,12 @@ export const getValorantRankedStats = async (puuid, shard) => {
             headers: { "X-Riot-Token": getApiKey() }
         });
         return response.data;
+        return null;
     } catch (error) {
         // 404 means no ranked data or wrong shard
         console.error("Riot API Error (ValRanked):", error.response?.data || error.message);
-        // Return null instead of throwing, so we don't break the whole flow if unranked
+        // If 403 (Forbidden), return specific error to notify user
+        if (error.response?.status === 403) return { error: 403 };
         return null;
     }
 };
@@ -255,8 +257,10 @@ export const getValorantMatchHistory = async (puuid, shard) => {
             headers: { "X-Riot-Token": getApiKey() }
         });
         return response.data; // List of matches
+        return response.data; // List of matches
     } catch (error) {
         console.error("Riot API Error (ValMatches):", error.response?.data || error.message);
+        if (error.response?.status === 403) return { error: 403 };
         return []; // Return empty array on error
     }
 };

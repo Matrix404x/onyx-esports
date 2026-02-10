@@ -150,11 +150,13 @@ export default function Dashboard() {
                                     <div className="relative">
                                         {/* Avatar Logic */}
                                         <img
-                                            src={playerStats.summoner
-                                                ? `https://ddragon.leagueoflegends.com/cdn/14.1.1/img/profileicon/${playerStats.summoner.profileIconId}.png`
-                                                : 'https://img.icons8.com/color/48/valorant.png'}
+                                            src={playerStats.account?.card?.small || playerStats.account?.card
+                                                ? (playerStats.account.card.small || playerStats.account.card)
+                                                : (playerStats.summoner
+                                                    ? `https://ddragon.leagueoflegends.com/cdn/14.1.1/img/profileicon/${playerStats.summoner.profileIconId}.png`
+                                                    : 'https://img.icons8.com/color/48/valorant.png')}
                                             alt="Icon"
-                                            className="w-16 h-16 rounded-full border-2 border-cyan-500"
+                                            className="w-16 h-16 rounded-full border-2 border-cyan-500 object-cover"
                                         />
                                         {playerStats.summoner && (
                                             <span className="absolute -bottom-1 -right-1 bg-slate-950 text-xs px-1.5 py-0.5 rounded border border-slate-700">
@@ -196,6 +198,7 @@ export default function Dashboard() {
                                     ) : (
                                         /* Valorant Stats */
                                         <div className="flex flex-col gap-2">
+                                            {/* Valorant Stats Display */}
                                             {playerStats.isManual ? (
                                                 <div>
                                                     <p className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
@@ -203,15 +206,11 @@ export default function Dashboard() {
                                                     </p>
                                                     <p className="text-xs text-slate-400 mt-1">Manual Entry</p>
                                                 </div>
-                                            ) : playerStats.ranked ? (
-                                                <div>
-                                                    <p className="text-xl font-bold text-white">Ranked Rating</p>
-                                                    <p className="text-cyan-400 font-medium">Rank Data Connected</p>
-                                                </div>
                                             ) : (
                                                 <div>
-                                                    <p className="text-xl font-bold text-slate-500">Unranked</p>
-                                                    <p className="text-xs text-slate-400">Play competitive to get a rank</p>
+                                                    {/* Use rank from backend directly (it is now 'Gold 2' etc from Henrik) */}
+                                                    <p className="text-2xl font-bold text-white capitalize">{playerStats.rank}</p>
+                                                    <p className="text-cyan-400 text-xs font-medium">Current Rank</p>
                                                 </div>
                                             )}
 
@@ -239,7 +238,7 @@ export default function Dashboard() {
 
                                 {/* Win Rate Card */}
                                 <SpotlightCard className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex flex-col justify-center items-center text-center">
-                                   
+
                                     <p className="text-slate-400 text-sm">Win Rate</p>
                                     <p className="text-xl font-bold">
                                         {/* LoL Calculation */}

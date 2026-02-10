@@ -413,4 +413,4 @@ export default function useLiveStream(tournamentId, isHost, user) {
         debugInfo
     };
 };
-}
+
