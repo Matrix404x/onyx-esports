@@ -84,6 +84,12 @@ export const getMyStats = async (req, res) => {
             const matches = stats.recentMatches || [];
             const matchesPlayed = matches.length;
 
+            // Update Avatar if available
+            if (stats.account?.card?.small) {
+                user.avatar = stats.account.card.small;
+                await user.save();
+            }
+
             // Calculate Win Rate (Henrik matches have clear 'metadata' usually)
             // Matches V3 structure: { metadata: { result: "won"|"lost" }, stats: { kills, deaths } }
             // Let's inspect typical Henrik V3 match object. 

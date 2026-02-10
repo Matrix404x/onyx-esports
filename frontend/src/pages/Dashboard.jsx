@@ -9,7 +9,7 @@ import axios from 'axios';
 
 export default function Dashboard() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const { user, logout } = useAuth();
+    const { user, logout, setUser } = useAuth();
     const navigate = useNavigate();
     const [tournaments, setTournaments] = useState([]);
     const [playerStats, setPlayerStats] = useState(null);
@@ -37,6 +37,15 @@ export default function Dashboard() {
                     headers: { 'x-auth-token': localStorage.getItem('token') }
                 });
                 setPlayerStats(res.data);
+
+                // SYNC AVATAR: If Fetch returns a new avatar from Game API, update global User state
+                const newAvatar = res.data.account?.card?.small;
+                if (newAvatar && user.avatar !== newAvatar) {
+                    const updatedUser = { ...user, avatar: newAvatar };
+                    setUser(updatedUser);
+                    localStorage.setItem('user', JSON.stringify(updatedUser));
+                }
+
             } catch (err) {
                 // If 400, strictly means no linked account
                 console.log("Stats fetch info:", err.response?.data?.message);
