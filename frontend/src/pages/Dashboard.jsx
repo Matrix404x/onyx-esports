@@ -239,15 +239,26 @@ export default function Dashboard() {
                                 {/* Win Rate Card */}
                                 <SpotlightCard className="bg-slate-900 border border-slate-800 p-6 rounded-xl flex flex-col justify-center items-center text-center">
 
-                                    <p className="text-slate-400 text-sm">Win Rate</p>
+                                    <p className="text-slate-400 text-sm">K/D Ratio</p>
                                     <p className="text-xl font-bold">
-                                        {/* LoL Calculation */}
+                                        {/* LoL Calculation (Still Win Rate for LoL as K/D is complex to get from simple League entry) */}
                                         {playerStats.leagues && playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5')
                                             ? Math.round((playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').wins / (playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').wins + playerStats.leagues.find(l => l.queueType === 'RANKED_SOLO_5x5').losses)) * 100) + '%'
-                                            : playerStats.recentMatches && playerStats.recentMatches.length > 0
-                                                ? <span className="text-sm text-slate-400 font-normal">Calculating...</span>
-                                                : 'N/A'
+                                            : (
+                                                /* Valorant Calculation */
+                                                playerStats.matchHistory && playerStats.matchHistory.length > 0
+                                                    ? (() => {
+                                                        const totalKills = playerStats.matchHistory.reduce((acc, m) => acc + (m.kill || 0), 0);
+                                                        const totalDeaths = playerStats.matchHistory.reduce((acc, m) => acc + (m.death || 0), 0);
+                                                        return totalDeaths === 0 ? totalKills : (totalKills / totalDeaths).toFixed(2);
+                                                    })()
+                                                    : (playerStats.account?.accountLevel || 'N/A')
+                                            )
                                         }
+                                    </p>
+                                    {/* Subtitle for Context */}
+                                    <p className="text-xs text-slate-500 mt-1">
+                                        {playerStats.leagues ? "Win Rate (Solo/Duo)" : "Average (Last 5 Matches)"}
                                     </p>
                                 </SpotlightCard>
                             </div>

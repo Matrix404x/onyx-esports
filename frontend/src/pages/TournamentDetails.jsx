@@ -1,10 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, Trophy, Users, Shield, Share2 } from 'lucide-react';
-import toast from 'react-hot-toast';
-import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
-import PaymentModal from '../components/PaymentModal';
+import { useState, useEffect, Suspense, lazy } from 'react';
+// Lazy load PaymentModal to prevent Stripe API from loading immediately
+const PaymentModal = lazy(() => import('../components/PaymentModal'));
 import LiveStream from '../components/LiveStream';
 import TournamentChat from '../components/TournamentChat';
 
@@ -216,11 +212,13 @@ export default function TournamentDetails() {
 
             {/* Payment Modal */}
             {showPayment && (
-                <PaymentModal
-                    amount={tournament.entryFee}
-                    onClose={() => setShowPayment(false)}
-                    onSuccess={processJoin}
-                />
+                <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 text-white">Loading Payment Gateway...</div>}>
+                    <PaymentModal
+                        amount={tournament.entryFee}
+                        onClose={() => setShowPayment(false)}
+                        onSuccess={processJoin}
+                    />
+                </Suspense>
             )}
         </div>
     );
