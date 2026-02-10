@@ -118,19 +118,7 @@ export default function LiveStream({ tournamentId, isOrganizer }) {
                         className="w-full h-full object-contain"
                     />
 
-                    {/* DEBUG PANEL */}
-                    <div className="absolute top-4 right-4 bg-black/80 text-green-400 p-2 rounded text-xs font-mono z-30 opacity-75 hover:opacity-100 pointer-events-none">
-                        <h4 className="font-bold border-b border-green-900 mb-1">Debug Info</h4>
-                        <div>Role: {debugInfo.role}</div>
-                        <div>Video Tracks: {debugInfo.videoTracks}</div>
-                        <div>Audio Tracks: {debugInfo.audioTracks}</div>
-                        <div>Video Muted: {videoRef.current?.muted ? 'YES' : 'NO'}</div>
-                        <div className="mt-1 border-t border-green-900 pt-1">
-                            {debugInfo.logs.map((log, i) => (
-                                <div key={i}>&gt; {log}</div>
-                            ))}
-                        </div>
-                    </div>
+
 
                     {/* Overlay Badges */}
                     <div className="absolute top-4 left-4 flex gap-2 z-10">
@@ -167,15 +155,11 @@ export default function LiveStream({ tournamentId, isOrganizer }) {
                     </button>
 
                     <button
-                        onClick={() => {
-                            if (videoRef.current) {
-                                videoRef.current.muted = !videoRef.current.muted;
-                            }
-                        }}
+                        onClick={() => setIsViewerMuted(!isViewerMuted)}
                         className="p-2 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition-colors"
-                        title="Mute/Unmute"
+                        title={isViewerMuted ? "Unmute" : "Mute"}
                     >
-                        {videoRef.current?.muted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+                        {isViewerMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
                     </button>
 
                     {/* Fullscreen Button could go here too */}
