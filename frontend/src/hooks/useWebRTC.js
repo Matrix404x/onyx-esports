@@ -18,62 +18,99 @@ export default function useWebRTC(channelId, user) {
         }
 
         console.log("WebRTC Hook: Initializing...");
-        socket.connect();
+        if (!socket.connected) {
+            socket.connect();
+        }
+
+        let localStream = null;
+
+        const handleUserConnected = (userId) => {
+            console.log('User connected:', userId);
+            // Close existing if any (avoid stale state)
+            if (peersRef.current[userId]) {
+                peersRef.current[userId].close();
+            }
+
+            const peer = createPeer(userId, socket.id, localStream);
+            peersRef.current[userId] = peer;
+
+            peer.createOffer().then(offer => {
+                peer.setLocalDescription(offer);
+                socket.emit('offer', { target: userId, offer });
+            });
+        };
+
+        const handleOffer = async ({ offer, caller }) => {
+            // Close existing if any
+            if (peersRef.current[caller]) {
+                peersRef.current[caller].close();
+            }
+
+            const peer = createPeer(caller, socket.id, localStream);
+            peersRef.current[caller] = peer;
+
+            await peer.setRemoteDescription(offer);
+            const answer = await peer.createAnswer();
+            await peer.setLocalDescription(answer);
+            socket.emit('answer', { target: caller, answer });
+        };
+
+        const handleAnswer = async ({ answer, caller }) => {
+            const peer = peersRef.current[caller];
+            if (peer) {
+                // Check state before setting remote desc to avoid "stable" error
+                if (peer.signalingState !== 'stable') {
+                    await peer.setRemoteDescription(answer);
+                }
+            }
+        };
+
+        const handleIceCandidate = async ({ candidate, caller }) => {
+            const peer = peersRef.current[caller];
+            if (peer) await peer.addIceCandidate(candidate);
+        };
+
+        const handleUserDisconnected = (userId) => {
+            if (peersRef.current[userId]) {
+                peersRef.current[userId].close();
+                delete peersRef.current[userId];
+                setPeers(prev => prev.filter(p => p.id !== userId));
+            }
+        };
 
         navigator.mediaDevices.getUserMedia({ audio: true, video: false })
             .then(stream => {
                 userStream.current = stream;
-                setPeers(prev => [...prev]); // Trigger re-render to expose stream
+                localStream = stream; // closure reference for handlers
+                setPeers(prev => [...prev]);
 
                 socket.emit('join-voice', channelId);
 
-                socket.on('user-connected', (userId) => {
-                    console.log('User connected:', userId);
-                    const peer = createPeer(userId, socket.id, stream);
-                    peersRef.current[userId] = peer;
-
-                    // Create Offer
-                    peer.createOffer().then(offer => {
-                        peer.setLocalDescription(offer);
-                        socket.emit('offer', { target: userId, offer });
-                    });
-                });
-
-                socket.on('offer', async ({ offer, caller }) => {
-                    const peer = createPeer(caller, socket.id, stream);
-                    peersRef.current[caller] = peer;
-                    await peer.setRemoteDescription(offer);
-                    const answer = await peer.createAnswer();
-                    await peer.setLocalDescription(answer);
-                    socket.emit('answer', { target: caller, answer });
-                });
-
-                socket.on('answer', async ({ answer, caller }) => {
-                    const peer = peersRef.current[caller];
-                    if (peer) await peer.setRemoteDescription(answer);
-                });
-
-                socket.on('ice-candidate', async ({ candidate, caller }) => {
-                    const peer = peersRef.current[caller];
-                    if (peer) await peer.addIceCandidate(candidate);
-                });
-
-                socket.on('user-disconnected', (userId) => {
-                    if (peersRef.current[userId]) {
-                        peersRef.current[userId].close();
-                        delete peersRef.current[userId];
-                        setPeers(prev => prev.filter(p => p.id !== userId));
-                    }
-                });
+                socket.on('user-connected', handleUserConnected);
+                socket.on('offer', handleOffer);
+                socket.on('answer', handleAnswer);
+                socket.on('ice-candidate', handleIceCandidate);
+                socket.on('user-disconnected', handleUserDisconnected);
             })
             .catch(err => {
                 console.error("Error accessing microphone:", err);
-                toast.error("Could not access microphone: " + err.message + ". Please ensure you have granted permission.", { duration: 5000 });
+                toast.error("Could not access microphone: " + err.message, { duration: 5000 });
             });
 
         return () => {
+            socket.off('user-connected', handleUserConnected);
+            socket.off('offer', handleOffer);
+            socket.off('answer', handleAnswer);
+            socket.off('ice-candidate', handleIceCandidate);
+            socket.off('user-disconnected', handleUserDisconnected);
+
             socket.emit('leave-voice', channelId);
-            socket.disconnect();
+            // socket.disconnect(); // Keep connection alive if shared? Or disconnect? 
+            // Better to disconnect if this is the only use.
+            // But if we navigate away, we want to stop.
+            // Let's keep existing disconnect behavior but careful about reuse
+            // socket.disconnect(); 
+
             if (userStream.current) {
                 userStream.current.getTracks().forEach(track => track.stop());
             }
