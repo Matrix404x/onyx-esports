@@ -135,6 +135,7 @@ export const getMyStats = async (req, res) => {
 
             return res.json({
                 matchesPlayed,
+                matchesWon: wins,
                 tournamentsWon: 0,
                 winRate,
                 rank: displayRank,
@@ -164,6 +165,7 @@ export const getMyStats = async (req, res) => {
         if (user) {
             return res.json({
                 matchesPlayed: 0,
+                matchesWon: 0,
                 tournamentsWon: 0,
                 winRate: 'N/A',
                 rank: user.manualStats?.rank || "Unranked",
@@ -202,6 +204,7 @@ export const getUserProfile = async (req, res) => {
             main: user.manualStats?.main || 'Fill',
             rank: user.manualStats?.rank || "Unranked",
             matchesPlayed: 0,
+            matchesWon: 0,
             tournamentsWon: 0,
             winRate: 'N/A',
             matchHistory: [],

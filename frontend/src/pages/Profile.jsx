@@ -54,6 +54,7 @@ export default function Profile() {
 
                 setStats({
                     matchesPlayed: data.matchesPlayed || 0,
+                    matchesWon: data.matchesWon || 0,
                     tournamentsWon: data.tournamentsWon || 0,
                     winRate: data.winRate || 'N/A',
                     rank: data.rank || 'Unranked',
@@ -156,7 +157,7 @@ export default function Profile() {
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <StatCard icon={<Swords className="text-red-400" />} label="Matches" value={stats.matchesPlayed} />
-                    <StatCard icon={<Trophy className="text-yellow-400" />} label="Wins" value={stats.tournamentsWon} />
+                    <StatCard icon={<Trophy className="text-yellow-400" />} label="Wins" value={stats.matchesWon || 0} />
                     <StatCard icon={<Target className="text-green-400" />} label="Win Rate" value={stats.winRate} />
                     <StatCard icon={<User className="text-blue-400" />} label="Rank" value={stats.rank} />
                 </div>
