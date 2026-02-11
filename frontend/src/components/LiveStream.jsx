@@ -160,6 +160,18 @@ export default function LiveStream({ tournamentId, isOrganizer }) {
                     </button>
 
                     {/* Fullscreen Button could go here too */}
+                    <button
+                        onClick={() => {
+                            if (videoRef.current?.requestFullscreen) {
+                                videoRef.current.requestFullscreen();
+                            }
+                        }}
+                        className="p-2 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition-colors"
+                        title="Fullscreen"
+                    >
+                        <Maximize size={20} />
+                    </button>
+
                 </div>
             )}
         </div>
