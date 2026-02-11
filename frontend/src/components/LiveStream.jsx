@@ -143,9 +143,6 @@ export default function LiveStream({ tournamentId, isOrganizer }) {
                             if (videoRef.current) {
                                 if (videoRef.current.paused) videoRef.current.play();
                                 else videoRef.current.pause();
-                                // Trigger re-render to update icon (handled by standard react state if we added it, 
-                                // but for now forcing update or relying on UI state would be better. 
-                                // Let's simplify: simple toggle with local state is better.)
                             }
                         }}
                         className="p-2 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition-colors"

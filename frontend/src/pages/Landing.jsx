@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Trophy, Users, MessageSquare, Mic, ArrowRight, Gamepad2, Zap } from 'lucide-react';
 import MagnetLines from '../components/ui/MagnetLines';
+import Aurora from '../components/ui/Aurora';
 import BlurInText from '../components/ui/BlurInText';
 import SpotlightCard from '../components/ui/SpotlightCard';
 
@@ -28,13 +29,21 @@ export default function Landing() {
         <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-cyan-500/30 relative">
             {/* 3D Background */}
             <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100vh', zIndex: 0, pointerEvents: 'none' }}>
+                <Aurora
+                    colorStops={["#06b6d4", "#8b5cf6", "#06b6d4"]}
+                    blend={0.5}
+                    amplitude={1.2}
+                    speed={0.5}
+                />
+
                 <MagnetLines
-                    rows={20}
-                    cols={30}
-                    lineColor="rgba(34, 211, 238, 0.2)"
+                    rows={12}
+                    cols={24}
+                    lineColor="rgba(34, 211, 238, 0.3)"
                     lineWidth="1px"
                     lineHeight="25px"
                     baseRotation={0}
+                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 10 }}
                 />
             </div>
 
