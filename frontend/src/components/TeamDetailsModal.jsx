@@ -12,8 +12,8 @@ export default function TeamDetailsModal({ team, onClose, onUpdate }) {
     const [joinLoading, setJoinLoading] = useState(false);
     const [joinRequests, setJoinRequests] = useState([]);
 
-    const isCaptain = user && team.captain && user._id === team.captain._id;
-    const isMember = user && team.members.some(m => m._id === user._id);
+    const isCaptain = user && team.captain && (user.id || user._id) === team.captain._id;
+    const isMember = user && team.members.some(m => m._id === (user.id || user._id));
     const isAdmin = user && user.role === 'admin';
 
     useEffect(() => {

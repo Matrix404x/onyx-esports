@@ -96,14 +96,14 @@ export default function Teams() {
                                     </div>
                                     <div className="flex items-center gap-2">
                                         {/* Pending Requests Badge */}
-                                        {user && (user.role === 'admin' || user._id === team.captain?._id) && team.joinRequests?.length > 0 && (
+                                        {user && (user.role === 'admin' || (user.id || user._id) === team.captain?._id) && team.joinRequests?.length > 0 && (
                                             <span className="bg-yellow-500 text-slate-950 text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1 animate-pulse">
                                                 <AlertCircle size={12} /> {team.joinRequests.length}
                                             </span>
                                         )}
 
                                         {/* Permission Check: Admin OR Captain */}
-                                        {user && (user.role === 'admin' || user._id === team.captain?._id) && (
+                                        {user && (user.role === 'admin' || (user.id || user._id) === team.captain?._id) && (
                                             <button
                                                 onClick={() => handleDeleteTeam(team._id)}
                                                 className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
@@ -128,7 +128,7 @@ export default function Teams() {
                                 <div className="mt-auto pt-4 border-t border-slate-800 flex items-center justify-between text-sm text-slate-400">
                                     <span>{team.members?.length || 0} Members</span>
 
-                                    {user && (user.role === 'admin' || user._id === team.captain?._id) && team.joinRequests?.length > 0 ? (
+                                    {user && (user.role === 'admin' || (user.id || user._id) === team.captain?._id) && team.joinRequests?.length > 0 ? (
                                         <button
                                             onClick={() => setSelectedTeam(team)}
                                             className="text-yellow-400 hover:text-yellow-300 font-bold transition-colors flex items-center gap-1"
