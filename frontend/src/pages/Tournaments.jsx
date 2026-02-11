@@ -31,10 +31,10 @@ export default function Tournaments() {
 
                 <h2 className="text-xl font-bold mb-6 text-cyan-400">Live & Upcoming</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                    {tournaments.filter(t => t.status !== 'completed').length === 0 ? (
+                    {tournaments.filter(t => t.status !== 'completed' && (new Date(t.date) > new Date() || t.isLive)).length === 0 ? (
                         <div className="col-span-full text-center text-slate-500 py-10">No upcoming tournaments.</div>
                     ) : (
-                        tournaments.filter(t => t.status !== 'completed').map(tournament => (
+                        tournaments.filter(t => t.status !== 'completed' && (new Date(t.date) > new Date() || t.isLive)).map(tournament => (
                             <TournamentCard key={tournament._id} data={tournament} />
                         ))
                     )}
@@ -42,10 +42,10 @@ export default function Tournaments() {
 
                 <h2 className="text-xl font-bold mb-6 text-slate-500">History</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-60">
-                    {tournaments.filter(t => t.status === 'completed').length === 0 ? (
+                    {tournaments.filter(t => t.status === 'completed' || (new Date(t.date) <= new Date() && !t.isLive)).length === 0 ? (
                         <div className="col-span-full text-center text-slate-500 py-10">No past tournaments.</div>
                     ) : (
-                        tournaments.filter(t => t.status === 'completed').map(tournament => (
+                        tournaments.filter(t => t.status === 'completed' || (new Date(t.date) <= new Date() && !t.isLive)).map(tournament => (
                             <TournamentCard key={tournament._id} data={tournament} isCompleted={true} />
                         ))
                     )}
