@@ -159,8 +159,6 @@ export default function Profile() {
                     <StatCard icon={<Trophy className="text-yellow-400" />} label="Wins" value={stats.tournamentsWon} />
                     <StatCard icon={<Target className="text-green-400" />} label="Win Rate" value={stats.winRate} />
                     <StatCard icon={<User className="text-blue-400" />} label="Rank" value={stats.rank} />
-                    <StatCard icon={<Swords className="text-purple-400" />} label="Role" value={stats.role || '-'} />
-                    <StatCard icon={<Star className="text-orange-400" />} label="Main" value={stats.main || '-'} />
                 </div>
 
                 {/* Match History */}
