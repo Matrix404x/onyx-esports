@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Users, Plus, Trash2, Shield } from 'lucide-react';
+import { ArrowLeft, Users, Plus, Trash2, Shield, AlertCircle } from 'lucide-react';
 
 import toast from 'react-hot-toast';
 import axios from 'axios';
@@ -85,7 +85,7 @@ export default function Teams() {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {teams.map(team => (
-                            <SpotlightCard key={team._id} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col h-full group">
+                            <SpotlightCard key={team._id} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col h-full group relative">
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="w-16 h-16 rounded-xl bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-700">
                                         {team.logo ? (
@@ -94,16 +94,25 @@ export default function Teams() {
                                             <span className="text-2xl font-bold text-slate-500">{team.tag}</span>
                                         )}
                                     </div>
-                                    {/* Permission Check: Admin OR Captain */}
-                                    {user && (user.role === 'admin' || user._id === team.captain?._id) && (
-                                        <button
-                                            onClick={() => handleDeleteTeam(team._id)}
-                                            className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                                            title="Delete Team"
-                                        >
-                                            <Trash2 size={18} />
-                                        </button>
-                                    )}
+                                    <div className="flex items-center gap-2">
+                                        {/* Pending Requests Badge */}
+                                        {user && (user.role === 'admin' || user._id === team.captain?._id) && team.joinRequests?.length > 0 && (
+                                            <span className="bg-yellow-500 text-slate-950 text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1 animate-pulse">
+                                                <AlertCircle size={12} /> {team.joinRequests.length}
+                                            </span>
+                                        )}
+
+                                        {/* Permission Check: Admin OR Captain */}
+                                        {user && (user.role === 'admin' || user._id === team.captain?._id) && (
+                                            <button
+                                                onClick={() => handleDeleteTeam(team._id)}
+                                                className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                                title="Delete Team"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <h3 className="text-xl font-bold mb-1 group-hover:text-cyan-400 transition-colors">{team.name}</h3>
@@ -118,15 +127,26 @@ export default function Teams() {
 
                                 <div className="mt-auto pt-4 border-t border-slate-800 flex items-center justify-between text-sm text-slate-400">
                                     <span>{team.members?.length || 0} Members</span>
-                                    <button
-                                        onClick={() => setSelectedTeam(team)}
-                                        className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
-                                    >
-                                        View Roster →
-                                    </button>
+
+                                    {user && (user.role === 'admin' || user._id === team.captain?._id) && team.joinRequests?.length > 0 ? (
+                                        <button
+                                            onClick={() => setSelectedTeam(team)}
+                                            className="text-yellow-400 hover:text-yellow-300 font-bold transition-colors flex items-center gap-1"
+                                        >
+                                            <AlertCircle size={14} /> Review Requests
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => setSelectedTeam(team)}
+                                            className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+                                        >
+                                            View Roster →
+                                        </button>
+                                    )}
                                 </div>
                             </SpotlightCard>
-                        ))}
+                        ))
+                        }
                     </div>
                 )}
             </div>
