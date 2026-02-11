@@ -2,7 +2,7 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Trophy, Users, MessageSquare, Mic, ArrowRight, Gamepad2, Zap } from 'lucide-react';
-import GridScan from '../components/GridScan';
+import MagnetLines from '../components/ui/MagnetLines';
 import BlurInText from '../components/ui/BlurInText';
 import SpotlightCard from '../components/ui/SpotlightCard';
 
@@ -27,20 +27,19 @@ export default function Landing() {
     return (
         <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-cyan-500/30 relative">
             {/* 3D Background */}
-            <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100vh', zIndex: 0 }}>
-                <GridScan
-                    sensitivity={0.55}
-                    lineThickness={1}
-                    linesColor="#392e4e"
-                    gridScale={0.1}
-                    scanColor="#FF9FFC"
-                    scanOpacity={0.4}
-                    enablePost
-                    bloomIntensity={0.6}
-                    chromaticAberration={0.002}
-                    noiseIntensity={0.01}
+            <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100vh', zIndex: 0, pointerEvents: 'none' }}>
+                <MagnetLines
+                    rows={20}
+                    cols={30}
+                    lineColor="rgba(34, 211, 238, 0.2)"
+                    lineWidth="1px"
+                    lineHeight="25px"
+                    baseRotation={0}
                 />
             </div>
+
+            {/* Vignette Overlay */}
+            <div className="fixed inset-0 z-0 bg-radial-gradient from-transparent to-slate-950 pointer-events-none opacity-80" />
 
             {/* Navbar */}
             <nav className="fixed w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/5">
